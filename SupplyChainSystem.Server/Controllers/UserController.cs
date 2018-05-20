@@ -1,15 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using SupplyChainSystem.Server.Models;
 
 namespace SupplyChainSystem.Server.Controllers
 {
+    [Produces("application/json")]
     [Route("api/[controller]")]
     public class UserController : Controller
     {
@@ -21,9 +26,16 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
         // GET api/user
-        [HttpGet]
+        [HttpGet, Authorize(Roles = "Admin")]
         public ActionResult Get()
         {
+            /*
+             HOW TO FIND USERNAME AND ROLE OF USER
+            var currentUser = HttpContext.User;
+            Console.WriteLine(currentUser.FindFirst(ClaimTypes.Name).Value);
+            Console.WriteLine(currentUser.FindFirst(ClaimTypes.Role).Value);
+            */
+
             var users = _dbContext.Users.Select(p => p);
             foreach (var user in users)
             {
@@ -34,7 +46,7 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
         // GET api/user/3
-        [HttpGet("{id}")]
+        [HttpGet("{id}"), Authorize(Roles = "Admin")]
         public ActionResult Get(int id)
         {
             var user = _dbContext.Users.SingleOrDefault(p => p.UserId == id);
@@ -44,7 +56,7 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
         // POST api/user
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "Admin")]
         public ActionResult Post([FromBody] User user)
         {
             user.UserPassword = HashUtilities.HashPassword(user.UserPassword);
@@ -54,7 +66,7 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
         // PUT api/user/5
-        [HttpPut("{id}")]
+        [HttpPut("{id}"), Authorize(Roles = "Admin")]
         public ActionResult Put(int id, [FromBody] User user)
         {
             var entity = _dbContext.Users.AsNoTracking().SingleOrDefault(p => p.UserId == id);
@@ -70,7 +82,7 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
         // DELETE api/user/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), Authorize(Roles = "Admin")]
         public ActionResult Delete(int id)
         {
             var entity = _dbContext.Users.SingleOrDefault(p => p.UserId == id);
