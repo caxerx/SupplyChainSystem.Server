@@ -82,6 +82,19 @@ namespace SupplyChainSystem.Server
             app.UseMvc();
 
             dbContext.Database.EnsureCreated();
-        }
+
+            if (env.IsDevelopment())
+            {
+                //TEST USER
+                var testUser = dbContext.User.SingleOrDefault(p => p.UserName == "Test");
+                if (testUser == null)
+                {
+                    dbContext.User.Add(new User("Test", "Test", "ADMIN"));
+                }
+
+                dbContext.SaveChanges();
+            }
+                
+    }
     }
 }

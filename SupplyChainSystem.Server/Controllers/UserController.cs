@@ -26,7 +26,7 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
         // GET api/user
-        [HttpGet, Authorize(Roles = "Admin")]
+        [HttpGet, Authorize]
         public ActionResult Get()
         {
             /*
@@ -35,45 +35,48 @@ namespace SupplyChainSystem.Server.Controllers
             Console.WriteLine(currentUser.FindFirst(ClaimTypes.Name).Value);
             Console.WriteLine(currentUser.FindFirst(ClaimTypes.Role).Value);
             */
+                var users = _dbContext.User.Select(p => p);
+                foreach (var user in users)
+                {
+                    user.Password = null;
+                }
 
-            var users = _dbContext.Users.Select(p => p);
-            foreach (var user in users)
-            {
-                user.UserPassword = null;
-            }
-
-            return Ok(users);
+                return Ok(SupplyResponse.Ok(users));
         }
 
         // GET api/user/3
-        [HttpGet("{id}"), Authorize(Roles = "Admin")]
+        [HttpGet("{id}"), Authorize]
         public ActionResult Get(int id)
         {
-            var user = _dbContext.Users.SingleOrDefault(p => p.UserId == id);
-            if (user == null) return NoContent();
-            user.UserPassword = null;
+            var user = _dbContext.User.SingleOrDefault(p => p.UserId == id);
+            if (user == null) return Ok(SupplyResponse.NotFound());
+            user.Password = null;
             return Ok(user);
         }
 
         // POST api/user
-        [HttpPost, Authorize(Roles = "Admin")]
+        //[HttpPost, Authorize(Roles = "Admin")]
+        [HttpPost, Authorize]
         public ActionResult Post([FromBody] User user)
         {
-            user.UserPassword = HashUtilities.HashPassword(user.UserPassword);
-            _dbContext.Users.Add(user);
+            user.Password = HashUtilities.HashPassword(user.Password);
+            _dbContext.User.Add(user);
             _dbContext.SaveChanges();
             return Get(user.UserId);
         }
 
         // PUT api/user/5
-        [HttpPut("{id}"), Authorize(Roles = "Admin")]
+        [HttpPut("{id}"), Authorize]
         public ActionResult Put(int id, [FromBody] User user)
         {
-            var entity = _dbContext.Users.AsNoTracking().SingleOrDefault(p => p.UserId == id);
-            if (entity == null) return BadRequest();
+            var entity = _dbContext.User.AsNoTracking().SingleOrDefault(p => p.UserId == id);
+            if (entity == null) return Ok(SupplyResponse.NotFound());
+            if(string.IsNullOrEmpty(user.UserName) || string.IsNullOrEmpty(user.UserType)) return Ok(SupplyResponse.Fail("Required Field is Empty"));
 
             user.UserId = id;
-            user.UserPassword = HashUtilities.HashPassword(user.UserPassword);
+
+            var oldPw = entity.Password;
+            user.Password = string.IsNullOrEmpty(user.Password) ? oldPw : HashUtilities.HashPassword(user.Password);
 
             _dbContext.Attach(user);
             _dbContext.Entry(user).State = EntityState.Modified;
@@ -82,11 +85,11 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
         // DELETE api/user/5
-        [HttpDelete("{id}"), Authorize(Roles = "Admin")]
+        [HttpDelete("{id}"), Authorize]
         public ActionResult Delete(int id)
         {
-            var entity = _dbContext.Users.SingleOrDefault(p => p.UserId == id);
-            if (entity == null) return BadRequest();
+            var entity = _dbContext.User.SingleOrDefault(p => p.UserId == id);
+            if (entity == null) return Ok(SupplyResponse.NotFound());
             _dbContext.Remove(entity);
             _dbContext.SaveChanges();
             return Ok();

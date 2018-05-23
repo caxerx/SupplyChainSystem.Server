@@ -32,13 +32,13 @@ namespace SupplyChainSystem.Server.Controllers
         [HttpPost]
         public IActionResult CreateToken([FromBody] LoginRequest login)
         {
-            IActionResult response = Unauthorized();
+            IActionResult response = Ok(SupplyResponse.Fail("Unauthorized"));
             var user = Authenticate(login);
 
             if (user != null)
             {
                 var tokenString = BuildToken(user);
-                response = Ok(new { token = tokenString });
+                response = Ok(SupplyResponse.Ok(new { token = tokenString }));
             }
 
             return response;
@@ -52,7 +52,7 @@ namespace SupplyChainSystem.Server.Controllers
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Role, user.UserType.ToString())
+                new Claim(ClaimTypes.Role, user.UserType)
             };
             var token = new JwtSecurityToken(issuer:_config["Jwt:Issuer"],
                 audience:_config["Jwt:Issuer"],
@@ -67,10 +67,9 @@ namespace SupplyChainSystem.Server.Controllers
 
         private User Authenticate(LoginRequest login)
         {
-            Console.Write(HashUtilities.HashPassword(login.Password));
             User user =
-                _dbContext.Users.SingleOrDefault(u =>
-                    u.UserName == login.Username && u.UserPassword == HashUtilities.HashPassword(login.Password));
+                _dbContext.User.SingleOrDefault(u =>
+                    u.UserName == login.Username && u.Password == HashUtilities.HashPassword(login.Password));
 
             return user;
         }
