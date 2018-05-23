@@ -13,5 +13,6 @@ namespace SupplyChainSystem.Server.Models
         public string VirtualItemDescription { get; set; }
 
         public ICollection<VirtualIdMap> VirtualIdMap { get; set; }
+        public ICollection<CategoryItem> CategoryItems { get; set; }
     }
 }

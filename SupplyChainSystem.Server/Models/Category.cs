@@ -11,5 +11,7 @@ namespace SupplyChainSystem.Server.Models
         [Key]
         public int CategoryId { get; set; }
         public string CategoryName { get; set; }
+
+        public ICollection<CategoryItem> CategoryItems { get; set; }
     }
 }

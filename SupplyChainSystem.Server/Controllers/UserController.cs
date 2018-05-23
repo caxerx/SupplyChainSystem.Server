@@ -51,7 +51,7 @@ namespace SupplyChainSystem.Server.Controllers
             var user = _dbContext.User.SingleOrDefault(p => p.UserId == id);
             if (user == null) return Ok(SupplyResponse.NotFound());
             user.Password = null;
-            return Ok(user);
+            return Ok(SupplyResponse.Ok(user));
         }
 
         // POST api/user
@@ -92,7 +92,7 @@ namespace SupplyChainSystem.Server.Controllers
             if (entity == null) return Ok(SupplyResponse.NotFound());
             _dbContext.Remove(entity);
             _dbContext.SaveChanges();
-            return Ok();
+            return Ok(SupplyResponse.Ok());
         }
     }
 }

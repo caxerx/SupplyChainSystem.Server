@@ -20,6 +20,11 @@ namespace SupplyChainSystem.Server
             return new SupplyResponse(true, response);
         }
 
+        public static SupplyResponse Ok()
+        {
+            return new SupplyResponse(true, null);
+        }
+
         public static SupplyResponse Fail(string message)
         {
             return new SupplyResponse(false, new ErrorMessage(message));
