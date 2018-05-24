@@ -19,9 +19,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using OpenIddict.Abstractions;
-using OpenIddict.Core;
-using OpenIddict.Models;
 using SupplyChainSystem.Server.Models;
 
 namespace SupplyChainSystem.Server

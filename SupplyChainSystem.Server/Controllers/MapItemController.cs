@@ -25,39 +25,77 @@ namespace SupplyChainSystem.Server.Controllers
             _dbContext = dbContext;
         }
 
-        
+
         [HttpGet("{id}"), Authorize]
-        public ActionResult Get(string id)
+        public ActionResult Get(string id, bool virtualid)
         {
-            var item = _dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId.Equals(id));
-            if (item == null) return Ok(SupplyResponse.NotFound());
-            List<Item> items = new List<Item>();
-            foreach (var virtualIdMap in item.VirtualIdMap)
+            if (virtualid)
             {
-                items.Add(virtualIdMap.Item);
+                var item = _dbContext.VirtualItem.Include(a => a.VirtualIdMap).ThenInclude(b => b.Item)
+                    .SingleOrDefault(p => p.VirtualItemId.Equals(id));
+                if (item == null) return Ok(SupplyResponse.NotFound());
+                List<string> items = new List<string>();
+                if (item.VirtualIdMap != null)
+                {
+                    foreach (var virtualIdMap in item.VirtualIdMap)
+                    {
+                        items.Add(virtualIdMap.ItemId);
+                    }
+                }
+
+                return Ok(SupplyResponse.Ok(items));
             }
-            return Ok(SupplyResponse.Ok(items));
+            else
+            {
+                var item = _dbContext.Item.Include(a => a.VirtualIdMap).ThenInclude(b => b.VirtualItem)
+                    .SingleOrDefault(p => p.ItemId.Equals(id));
+                if (item == null) return Ok(SupplyResponse.NotFound());
+                List<string> items = new List<string>();
+                if (item.VirtualIdMap != null)
+                {
+                    foreach (var virtualIdMap in item.VirtualIdMap)
+                    {
+                        items.Add(virtualIdMap.VirtualItemId);
+                    }
+                }
+
+                return Ok(SupplyResponse.Ok(items));
+            }
         }
 
-        [HttpPost, Authorize]
-        public ActionResult Post([FromBody]VirtualIdMap virtualIdMap)
+        [HttpPost("{id}"), Authorize]
+        public ActionResult Post(string id, [FromBody] IdRequest idRequest)
         {
-            var vItem=_dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId == virtualIdMap.VirtualItemId);
-            var item = _dbContext.Item.SingleOrDefault(p => p.ItemId == virtualIdMap.ItemId);
+            var vItem = _dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId == idRequest.Id);
+            var item = _dbContext.Item.SingleOrDefault(p => p.ItemId == id);
             if (vItem == null || item == null)
             {
                 return Ok(SupplyResponse.NotFound());
             }
+
+            var virtualIdMap = new VirtualIdMap
+            {
+                ItemId = item.ItemId,
+                VirtualItemId = vItem.VirtualItemId
+            };
+            if (_dbContext.VirtualIdMap.SingleOrDefault(p =>
+                    p.ItemId == virtualIdMap.ItemId && p.VirtualItemId == virtualIdMap.ItemId) !=
+                null)
+            {
+                return Ok(SupplyResponse.Fail("Duplicate Entry"));
+            }
+
             _dbContext.VirtualIdMap.Add(virtualIdMap);
             _dbContext.SaveChanges();
             return Ok(SupplyResponse.Ok());
         }
 
-        
-        [HttpDelete, Authorize]
-        public ActionResult Delete([FromBody]VirtualIdMap virtualIdMap)
+
+        [HttpDelete("{id}"), Authorize]
+        public ActionResult Delete(string id, [FromBody] IdRequest idRequest)
         {
-            var entity = _dbContext.VirtualIdMap.SingleOrDefault(p => p.VirtualItemId==virtualIdMap.VirtualItemId && p.ItemId==virtualIdMap.ItemId);
+            var entity =
+                _dbContext.VirtualIdMap.SingleOrDefault(p => p.VirtualItemId == idRequest.Id && p.ItemId == id);
             if (entity == null) return Ok(SupplyResponse.NotFound());
             _dbContext.Remove(entity);
             _dbContext.SaveChanges();

@@ -51,7 +51,7 @@ namespace SupplyChainSystem.Server.Controllers
         [HttpPost, Authorize]
         public ActionResult Post([FromBody] Item item)
         {
-            if (_dbContext.Item.Contains(item))
+            if (_dbContext.Item.SingleOrDefault(p=>p.ItemId==item.ItemId)!=null)
             {
                 return Ok(SupplyResponse.Fail("Duplicated entry"));
             }
@@ -64,6 +64,7 @@ namespace SupplyChainSystem.Server.Controllers
         [HttpPut("{id}"), Authorize]
         public ActionResult Put(string id, [FromBody] Item item)
         {
+            item.ItemId = id;
             var entity = _dbContext.Item.AsNoTracking().SingleOrDefault(p => p.ItemId == id);
             if (entity == null) return Post(item);
 

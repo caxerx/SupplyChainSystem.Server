@@ -81,45 +81,5 @@ namespace SupplyChainSystem.Server.Controllers
             _dbContext.SaveChanges();
             return Ok(SupplyResponse.Ok());
         }
-
-        //TODO: Move To Other Controller
-        // POST api/category/{id}/add
-        [HttpPost("{id}/add/{vItmId}"), Authorize]
-        public ActionResult AddToCategory(int id, string vItemId)
-        {
-            var category = _dbContext.Category.SingleOrDefault(p => p.CategoryId == id);
-            var vItm = _dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId == vItemId);
-            if (category == null || vItm == null)
-            {
-                return BadRequest();
-            }
-
-            var cateItm = new CategoryItem
-            {
-                CategoryId = category.CategoryId,
-                VirtualItemId = vItm.VirtualItemId
-            };
-            _dbContext.CategoryItem.Add(cateItm);
-            _dbContext.SaveChanges();
-            return Get(category.CategoryId);
-        }
-
-        // POST api/category/{id}/add
-        [HttpPost("{id}/remove/{vItmId}"), Authorize]
-        public ActionResult RemoveFromCategory(int id, [FromBody] string vItemId)
-        {
-            var cateItm = _dbContext.CategoryItem.SingleOrDefault(p => p.CategoryId == id && p.VirtualItemId == vItemId);
-            if (cateItm == null)
-            {
-                return BadRequest();
-            }
-
-            _dbContext.CategoryItem.Remove(cateItm);
-            _dbContext.SaveChanges();
-            return Ok();
-        }
-
-
-
     }
 }

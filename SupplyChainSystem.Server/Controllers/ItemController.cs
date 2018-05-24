@@ -51,7 +51,7 @@ namespace SupplyChainSystem.Server.Controllers
         [HttpPost, Authorize]
         public ActionResult Post([FromBody] VirtualItem virtualItem)
         {
-            if (_dbContext.VirtualItem.Contains(virtualItem))
+            if (_dbContext.VirtualItem.SingleOrDefault(p=>p.VirtualItemId== virtualItem.VirtualItemId)!=null)
             {
                 return Ok(SupplyResponse.Fail("Duplicated entry"));
             }
@@ -64,6 +64,7 @@ namespace SupplyChainSystem.Server.Controllers
         [HttpPut("{id}"), Authorize]
         public ActionResult Put(string id, [FromBody] VirtualItem virtualItem)
         {
+            virtualItem.VirtualItemId = id;
             var entity = _dbContext.VirtualItem.AsNoTracking().SingleOrDefault(p => p.VirtualItemId == id);
             if (entity == null) return Post(virtualItem);
 
