@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using SupplyChainSystem.Server.Models;
 
 namespace SupplyChainSystem.Server.Controllers
@@ -32,7 +23,8 @@ namespace SupplyChainSystem.Server.Controllers
          */
 
         // GET api/user
-        [HttpGet, Authorize]
+        [HttpGet]
+        [Authorize]
         public ActionResult Get()
         {
             var items = _dbContext.Item.Select(p => p);
@@ -40,7 +32,8 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
         // GET api/user/3
-        [HttpGet("{id}"), Authorize]
+        [HttpGet("{id}")]
+        [Authorize]
         public ActionResult Get(string id)
         {
             var item = _dbContext.Item.SingleOrDefault(p => p.ItemId.Equals(id));
@@ -49,20 +42,20 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
         // POST api/user
-        [HttpPost, Authorize]
+        [HttpPost]
+        [Authorize]
         public ActionResult Post([FromBody] Item item)
         {
-            if (_dbContext.Item.SingleOrDefault(p=>p.ItemId==item.ItemId)!=null)
-            {
+            if (_dbContext.Item.SingleOrDefault(p => p.ItemId == item.ItemId) != null)
                 return Ok(SupplyResponse.Fail("Duplicated entry"));
-            }
             _dbContext.Item.Add(item);
             _dbContext.SaveChanges();
             return Get(item.ItemId);
         }
 
         // PUT api/user/5
-        [HttpPut("{id}"), Authorize]
+        [HttpPut("{id}")]
+        [Authorize]
         public ActionResult Put(string id, [FromBody] Item item)
         {
             item.ItemId = id;
@@ -76,7 +69,8 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
         // DELETE api/user/5
-        [HttpDelete("{id}"), Authorize]
+        [HttpDelete("{id}")]
+        [Authorize]
         public ActionResult Delete(string id)
         {
             var entity = _dbContext.Item.SingleOrDefault(p => p.ItemId == id);

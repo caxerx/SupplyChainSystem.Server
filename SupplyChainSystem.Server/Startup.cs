@@ -1,22 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
+﻿using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using AspNet.Security.OpenIdConnect.Server;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using SupplyChainSystem.Server.Models;
@@ -37,7 +26,6 @@ namespace SupplyChainSystem.Server
         {
             HashUtilities.Salt =
                 (string) Configuration.GetSection("ApplicationConfig").GetValue(typeof(string), "Salt");
-
 
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -85,12 +73,8 @@ namespace SupplyChainSystem.Server
 
             app.UseCors("AllowAllOrigins");
 
-            
 
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
 
             //allow corss origin for test
@@ -102,10 +86,7 @@ namespace SupplyChainSystem.Server
             {
                 //TEST USER
                 var testUser = dbContext.User.SingleOrDefault(p => p.UserName == "Test");
-                if (testUser == null)
-                {
-                    dbContext.User.Add(new User("Test", "Test", "ADMIN"));
-                }
+                if (testUser == null) dbContext.User.Add(new User("Test", "Test", "ADMIN"));
 
                 dbContext.SaveChanges();
             }

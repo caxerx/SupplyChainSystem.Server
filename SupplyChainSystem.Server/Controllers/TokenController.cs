@@ -4,9 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -18,8 +16,8 @@ namespace SupplyChainSystem.Server.Controllers
     [Route("api/[controller]")]
     public class TokenController : Controller
     {
-        private readonly ProcedurementContext _dbContext;
         private readonly IConfiguration _config;
+        private readonly ProcedurementContext _dbContext;
 
         public TokenController(ProcedurementContext dbContext, IConfiguration config)
         {
@@ -38,7 +36,7 @@ namespace SupplyChainSystem.Server.Controllers
             if (user != null)
             {
                 var tokenString = BuildToken(user);
-                response = Ok(SupplyResponse.Ok(new { token = tokenString }));
+                response = Ok(SupplyResponse.Ok(new {token = tokenString}));
             }
 
             return response;
@@ -61,12 +59,12 @@ namespace SupplyChainSystem.Server.Controllers
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.Role, user.UserType)
             };
-            var token = new JwtSecurityToken(issuer:_config["Jwt:Issuer"],
-                audience:_config["Jwt:Issuer"],
+            var token = new JwtSecurityToken(_config["Jwt:Issuer"],
+                _config["Jwt:Issuer"],
                 expires: DateTime.Now.AddMinutes(30),
                 signingCredentials: creds,
-                claims:claims
-                );
+                claims: claims
+            );
 
 
             return new JwtSecurityTokenHandler().WriteToken(token);
@@ -74,7 +72,7 @@ namespace SupplyChainSystem.Server.Controllers
 
         private User Authenticate(LoginRequest login)
         {
-            User user =
+            var user =
                 _dbContext.User.SingleOrDefault(u =>
                     u.UserName == login.Username && u.Password == HashUtilities.HashPassword(login.Password));
 

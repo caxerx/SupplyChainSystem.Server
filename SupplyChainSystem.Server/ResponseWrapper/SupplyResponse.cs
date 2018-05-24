@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SupplyChainSystem.Server
 {
@@ -12,6 +9,7 @@ namespace SupplyChainSystem.Server
             Success = success;
             ResponseContent = response;
         }
+
         public bool Success { get; set; }
         public object ResponseContent { get; set; }
 
@@ -47,6 +45,7 @@ namespace SupplyChainSystem.Server
         {
             Message = msg;
         }
+
         public string Message { get; set; }
     }
 
@@ -57,6 +56,7 @@ namespace SupplyChainSystem.Server
             Message = e.Message;
             Exception = e.GetType().ToString();
         }
+
         public string Message { get; set; }
         public string Exception { get; set; }
     }

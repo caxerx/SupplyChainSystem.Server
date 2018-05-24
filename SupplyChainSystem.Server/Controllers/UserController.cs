@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using SupplyChainSystem.Server.Models;
 
 namespace SupplyChainSystem.Server.Controllers
@@ -26,7 +18,8 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
         // GET api/user
-        [HttpGet, Authorize]
+        [HttpGet]
+        [Authorize]
         public ActionResult Get()
         {
             /*
@@ -35,17 +28,15 @@ namespace SupplyChainSystem.Server.Controllers
             Console.WriteLine(currentUser.FindFirst(ClaimTypes.Name).Value);
             Console.WriteLine(currentUser.FindFirst(ClaimTypes.Role).Value);
             */
-                var users = _dbContext.User.Select(p => p);
-                foreach (var user in users)
-                {
-                    user.Password = null;
-                }
+            var users = _dbContext.User.Select(p => p);
+            foreach (var user in users) user.Password = null;
 
-                return Ok(SupplyResponse.Ok(users));
+            return Ok(SupplyResponse.Ok(users));
         }
 
         // GET api/user/3
-        [HttpGet("{id}"), Authorize]
+        [HttpGet("{id}")]
+        [Authorize]
         public ActionResult Get(int id)
         {
             var user = _dbContext.User.SingleOrDefault(p => p.UserId == id);
@@ -56,7 +47,8 @@ namespace SupplyChainSystem.Server.Controllers
 
         // POST api/user
         //[HttpPost, Authorize(Roles = "Admin")]
-        [HttpPost, Authorize]
+        [HttpPost]
+        [Authorize]
         public ActionResult Post([FromBody] User user)
         {
             user.UserId = 0;
@@ -67,12 +59,14 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
         // PUT api/user/5
-        [HttpPut("{id}"), Authorize]
+        [HttpPut("{id}")]
+        [Authorize]
         public ActionResult Put(int id, [FromBody] User user)
         {
             var entity = _dbContext.User.AsNoTracking().SingleOrDefault(p => p.UserId == id);
             if (entity == null) return Ok(SupplyResponse.NotFound());
-            if(string.IsNullOrEmpty(user.UserName) || string.IsNullOrEmpty(user.UserType)) return Ok(SupplyResponse.Fail("Required Field is Empty"));
+            if (string.IsNullOrEmpty(user.UserName) || string.IsNullOrEmpty(user.UserType))
+                return Ok(SupplyResponse.Fail("Required Field is Empty"));
 
             user.UserId = id;
 
@@ -86,7 +80,8 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
         // DELETE api/user/5
-        [HttpDelete("{id}"), Authorize]
+        [HttpDelete("{id}")]
+        [Authorize]
         public ActionResult Delete(int id)
         {
             var entity = _dbContext.User.SingleOrDefault(p => p.UserId == id);

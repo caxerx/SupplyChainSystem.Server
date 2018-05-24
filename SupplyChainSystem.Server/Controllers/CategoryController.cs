@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using SupplyChainSystem.Server.Models;
 
 namespace SupplyChainSystem.Server.Controllers
@@ -32,7 +24,8 @@ namespace SupplyChainSystem.Server.Controllers
          */
 
         // GET api/user
-        [HttpGet, Authorize]
+        [HttpGet]
+        [Authorize]
         public ActionResult Get()
         {
             var items = _dbContext.Category.Select(p => p);
@@ -40,7 +33,8 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
         // GET api/user/3
-        [HttpGet("{id}"), Authorize]
+        [HttpGet("{id}")]
+        [Authorize]
         public ActionResult Get(int id)
         {
             var item = _dbContext.Category.SingleOrDefault(p => p.CategoryId == id);
@@ -49,7 +43,8 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
         // POST api/user
-        [HttpPost, Authorize]
+        [HttpPost]
+        [Authorize]
         public ActionResult Post([FromBody] Category category)
         {
             _dbContext.Category.Add(category);
@@ -59,7 +54,8 @@ namespace SupplyChainSystem.Server.Controllers
 
 
         // PUT api/user/5
-        [HttpPut("{id}"), Authorize]
+        [HttpPut("{id}")]
+        [Authorize]
         public ActionResult Put(int id, [FromBody] Category category)
         {
             var entity = _dbContext.Category.AsNoTracking().SingleOrDefault(p => p.CategoryId == id);
@@ -72,7 +68,8 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
         // DELETE api/user/5
-        [HttpDelete("{id}"), Authorize]
+        [HttpDelete("{id}")]
+        [Authorize]
         public ActionResult Delete(int id)
         {
             var entity = _dbContext.Category.SingleOrDefault(p => p.CategoryId == id);

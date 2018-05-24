@@ -1,11 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MySql.Data.EntityFrameworkCore.Extensions;
 using SupplyChainSystem.Server.Models;
 
 namespace SupplyChainSystem.Server
 {
     public class ProcedurementContext : DbContext
     {
+        public ProcedurementContext(DbContextOptions<ProcedurementContext> options) : base(options)
+        {
+        }
+
         public DbSet<User> User { set; get; }
         public DbSet<Supplier> Supplier { set; get; }
         public DbSet<Category> Category { set; get; }
@@ -14,17 +17,10 @@ namespace SupplyChainSystem.Server
         public DbSet<VirtualItem> VirtualItem { set; get; }
         public DbSet<CategoryItem> CategoryItem { get; set; }
 
-        public ProcedurementContext(DbContextOptions<ProcedurementContext> options) : base(options)
-        {
-
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<VirtualIdMap>().HasKey(sc => new { sc.ItemId, sc.VirtualItemId });
-            modelBuilder.Entity<CategoryItem>().HasKey(sc => new { sc.VirtualItemId, sc.CategoryId });
+            modelBuilder.Entity<VirtualIdMap>().HasKey(sc => new {sc.ItemId, sc.VirtualItemId});
+            modelBuilder.Entity<CategoryItem>().HasKey(sc => new {sc.VirtualItemId, sc.CategoryId});
         }
-
-
     }
 }
