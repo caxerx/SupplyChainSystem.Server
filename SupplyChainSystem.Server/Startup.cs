@@ -39,6 +39,7 @@ namespace SupplyChainSystem.Server
                 (string) Configuration.GetSection("ApplicationConfig").GetValue(typeof(string), "Salt");
 
 
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -53,6 +54,17 @@ namespace SupplyChainSystem.Server
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
                     };
                 });
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllOrigins", builder =>
+                {
+                    builder.AllowAnyOrigin();
+                    builder.AllowAnyHeader();
+                    builder.AllowAnyMethod();
+                    builder.AllowCredentials();
+                });
+            });
 
             services.AddMvc().AddJsonOptions(options =>
             {
@@ -71,11 +83,17 @@ namespace SupplyChainSystem.Server
             //Make sure the authentication middleware is registered before all the other middleware, including app.UseMvc()
             app.UseAuthentication();
 
+            app.UseCors("AllowAllOrigins");
+
+            
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
+
+            //allow corss origin for test
             app.UseMvc();
 
             dbContext.Database.EnsureCreated();
@@ -91,7 +109,6 @@ namespace SupplyChainSystem.Server
 
                 dbContext.SaveChanges();
             }
-                
-    }
+        }
     }
 }

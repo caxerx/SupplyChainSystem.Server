@@ -59,6 +59,7 @@ namespace SupplyChainSystem.Server.Controllers
         [HttpPost, Authorize]
         public ActionResult Post([FromBody] User user)
         {
+            user.UserId = 0;
             user.Password = HashUtilities.HashPassword(user.Password);
             _dbContext.User.Add(user);
             _dbContext.SaveChanges();

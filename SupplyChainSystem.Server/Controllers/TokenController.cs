@@ -44,6 +44,13 @@ namespace SupplyChainSystem.Server.Controllers
             return response;
         }
 
+        [HttpGet]
+        [Authorize]
+        public IActionResult TestToken()
+        {
+            return Ok(SupplyResponse.Ok());
+        }
+
 
         private string BuildToken(User user)
         {
