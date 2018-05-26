@@ -21,68 +21,69 @@ namespace SupplyChainSystem.Server.Controllers
 
         [HttpGet("{id}")]
         [Authorize]
-        public ActionResult Get(string id, bool virtualid)
+        public SupplyResponse Get(string id, bool virtualid)
         {
             if (virtualid)
             {
                 var item = _dbContext.VirtualItem.Include(a => a.VirtualIdMap).ThenInclude(b => b.Item)
                     .SingleOrDefault(p => p.VirtualItemId.Equals(id));
-                if (item == null) return Ok(SupplyResponse.NotFound());
+                if (item == null) return SupplyResponse.NotFound("virtual item", id);
                 var items = new List<string>();
                 if (item.VirtualIdMap != null)
                     foreach (var virtualIdMap in item.VirtualIdMap)
-                        items.Add(virtualIdMap.ItemId);
+                        items.Add(virtualIdMap.SupplierItemId);
 
-                return Ok(SupplyResponse.Ok(items));
+                return SupplyResponse.Ok(items);
             }
             else
             {
                 var item = _dbContext.Item.Include(a => a.VirtualIdMap).ThenInclude(b => b.VirtualItem)
-                    .SingleOrDefault(p => p.ItemId.Equals(id));
-                if (item == null) return Ok(SupplyResponse.NotFound());
+                    .SingleOrDefault(p => p.SupplierItemId.Equals(id));
+                if (item == null) return SupplyResponse.NotFound("item", id);
                 var items = new List<string>();
                 if (item.VirtualIdMap != null)
                     foreach (var virtualIdMap in item.VirtualIdMap)
                         items.Add(virtualIdMap.VirtualItemId);
 
-                return Ok(SupplyResponse.Ok(items));
+                return SupplyResponse.Ok(items);
             }
         }
 
         [HttpPost("{id}")]
         [Authorize]
-        public ActionResult Post(string id, [FromBody] IdRequest idRequest)
+        public SupplyResponse Post(string id, [FromBody] IdRequest idRequest)
         {
             var vItem = _dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId == idRequest.Id);
-            var item = _dbContext.Item.SingleOrDefault(p => p.ItemId == id);
-            if (vItem == null || item == null) return Ok(SupplyResponse.NotFound());
+            var item = _dbContext.Item.SingleOrDefault(p => p.SupplierItemId == id);
+            if (item == null) return SupplyResponse.NotFound("item", id);
+            if (vItem == null) return SupplyResponse.NotFound("virtual item", idRequest.Id);
 
             var virtualIdMap = new VirtualIdMap
             {
-                ItemId = item.ItemId,
+                SupplierItemId = item.SupplierItemId,
                 VirtualItemId = vItem.VirtualItemId
             };
             if (_dbContext.VirtualIdMap.SingleOrDefault(p =>
-                    p.ItemId == virtualIdMap.ItemId && p.VirtualItemId == virtualIdMap.ItemId) !=
+                    p.SupplierItemId == virtualIdMap.SupplierItemId && p.VirtualItemId == virtualIdMap.SupplierItemId) !=
                 null)
-                return Ok(SupplyResponse.Fail("Duplicate Entry"));
+                return SupplyResponse.DuplicateEntry("virtual map", $"{id}<->{idRequest.Id}");
 
             _dbContext.VirtualIdMap.Add(virtualIdMap);
             _dbContext.SaveChanges();
-            return Ok(SupplyResponse.Ok());
+            return SupplyResponse.Ok();
         }
 
 
         [HttpDelete("{id}")]
         [Authorize]
-        public ActionResult Delete(string id, [FromBody] IdRequest idRequest)
+        public SupplyResponse Delete(string id, [FromBody] IdRequest idRequest)
         {
             var entity =
-                _dbContext.VirtualIdMap.SingleOrDefault(p => p.VirtualItemId == idRequest.Id && p.ItemId == id);
-            if (entity == null) return Ok(SupplyResponse.NotFound());
+                _dbContext.VirtualIdMap.SingleOrDefault(p => p.VirtualItemId == idRequest.Id && p.SupplierItemId == id);
+            if (entity == null) return SupplyResponse.NotFound("virtual map", $"{id}<->{idRequest.Id}");
             _dbContext.Remove(entity);
             _dbContext.SaveChanges();
-            return Ok(SupplyResponse.Ok());
+            return SupplyResponse.Ok();
         }
     }
 }

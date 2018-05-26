@@ -21,7 +21,7 @@ namespace SupplyChainSystem.Server.Controllers
         // GET api/user
         [HttpGet]
         [Authorize]
-        public ActionResult Get()
+        public SupplyResponse Get()
         {
             var category = _dbContext.Category.Include(a => a.CategoryItems).Select(p => p);
             var cateRes = new List<CategoryItemResponse>();
@@ -39,17 +39,17 @@ namespace SupplyChainSystem.Server.Controllers
                 cateRes.Add(cateR);
             }
 
-            return Ok(SupplyResponse.Ok(cateRes));
+            return SupplyResponse.Ok(cateRes);
         }
 
         // GET api/user/3
         [HttpGet("{id}")]
         [Authorize]
-        public ActionResult Get(int id)
+        public SupplyResponse Get(int id)
         {
             var category = _dbContext.Category.Include(a => a.CategoryItems).ThenInclude(a => a.VirtualItem)
                 .SingleOrDefault(p => p.CategoryId == id);
-            if (category == null) return Ok(SupplyResponse.NotFound());
+            if (category == null) return SupplyResponse.NotFound("category", id + "");
 
             var cateRes = new CategoryItemResponse
             {
@@ -61,24 +61,27 @@ namespace SupplyChainSystem.Server.Controllers
 
             category.CategoryItems = null;
 
-            return Ok(SupplyResponse.Ok(cateRes));
+            return SupplyResponse.Ok(cateRes);
         }
 
 
         // POST api/category/{id}/add
         [HttpPost("{id}")]
         [Authorize]
-        public ActionResult AddToCategory(int id, [FromBody] IdRequest idRequest)
+        public SupplyResponse AddToCategory(int id, [FromBody] IdRequest idRequest)
         {
             var category = _dbContext.Category.SingleOrDefault(p => p.CategoryId == id);
 
             var vItm = _dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId == idRequest.Id);
 
-            if (category == null || vItm == null) return Ok(SupplyResponse.NotFound());
+            if (category == null) return SupplyResponse.NotFound("category", id + "");
+            if (vItm == null) return SupplyResponse.NotFound("virtual item", idRequest.Id + "");
 
-            if (_dbContext.CategoryItem.SingleOrDefault(p =>
-                    p.CategoryId == category.CategoryId && p.VirtualItemId == vItm.VirtualItemId) != null)
-                return Ok(SupplyResponse.Fail("Duplicate Entry"));
+            var cItem = _dbContext.CategoryItem.SingleOrDefault(p =>
+                p.CategoryId == category.CategoryId && p.VirtualItemId == vItm.VirtualItemId);
+            if (cItem != null)
+                return SupplyResponse.DuplicateEntry("category item",
+                    $"\"{cItem.VirtualItemId} in {cItem.CategoryId}\"");
 
             var cateItm = new CategoryItem
             {
@@ -94,15 +97,15 @@ namespace SupplyChainSystem.Server.Controllers
         // POST api/category/{id}/add
         [HttpDelete("{id}")]
         [Authorize]
-        public ActionResult RemoveFromCategory(int id, [FromBody] IdRequest idRequest)
+        public SupplyResponse RemoveFromCategory(int id, [FromBody] IdRequest idRequest)
         {
-            var cateItm =
+            var cItem =
                 _dbContext.CategoryItem.SingleOrDefault(p => p.CategoryId == id && p.VirtualItemId == idRequest.Id);
-            if (cateItm == null) return BadRequest();
+            if (cItem == null) return SupplyResponse.NotFound("category item", $"\"{idRequest.Id} in {id}\"");
 
-            _dbContext.CategoryItem.Remove(cateItm);
+            _dbContext.CategoryItem.Remove(cItem);
             _dbContext.SaveChanges();
-            return Ok();
+            return SupplyResponse.Ok();
         }
     }
 }

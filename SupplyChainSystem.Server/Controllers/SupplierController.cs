@@ -20,28 +20,29 @@ namespace SupplyChainSystem.Server.Controllers
         // GET api/supplier
         [HttpGet]
         [Authorize]
-        public ActionResult Get()
+        public SupplyResponse Get()
         {
             var suppliers = _dbContext.Supplier.Select(p => p);
-            return Ok(SupplyResponse.Ok(suppliers));
+            return SupplyResponse.Ok(suppliers);
         }
 
         // GET api/supplier/3
         [HttpGet("{id}")]
         [Authorize]
-        public ActionResult Get(int id)
+        public SupplyResponse Get(int id)
         {
             var supplier = _dbContext.Supplier.SingleOrDefault(p => p.SupplierId == id);
-            if (supplier == null) return Ok(SupplyResponse.NotFound());
-            return Ok(SupplyResponse.Ok(supplier));
+            if (supplier == null) return SupplyResponse.NotFound("supplier", id + "");
+            return SupplyResponse.Ok(supplier);
         }
 
         // POST api/supplier
         [HttpPost]
         [Authorize]
-        public ActionResult Post([FromBody] Supplier supplier)
+        public SupplyResponse Post([FromBody] Supplier supplier)
         {
-            if (string.IsNullOrEmpty(supplier.SupplierName)) return Ok(SupplyResponse.Fail("Required Field is Empty"));
+            if (string.IsNullOrWhiteSpace(supplier.SupplierName))
+                return SupplyResponse.BadRequest("Required Field is Empty");
             _dbContext.Supplier.Add(supplier);
             _dbContext.SaveChanges();
             return Get(supplier.SupplierId);
@@ -50,11 +51,12 @@ namespace SupplyChainSystem.Server.Controllers
         // PUT api/supplier/5
         [HttpPut("{id}")]
         [Authorize]
-        public ActionResult Put(int id, [FromBody] Supplier supplier)
+        public SupplyResponse Put(int id, [FromBody] Supplier supplier)
         {
             var entity = _dbContext.Supplier.AsNoTracking().SingleOrDefault(p => p.SupplierId == id);
-            if (entity == null) return Ok(SupplyResponse.NotFound());
-            if (string.IsNullOrEmpty(supplier.SupplierName)) return Ok(SupplyResponse.Fail("Required Field is Empty"));
+            if (entity == null) return SupplyResponse.NotFound("supplier", id + "");
+            if (string.IsNullOrWhiteSpace(supplier.SupplierName))
+                return SupplyResponse.BadRequest("Required Field is Empty");
 
             _dbContext.Attach(supplier);
             _dbContext.Entry(supplier).State = EntityState.Modified;
@@ -65,13 +67,13 @@ namespace SupplyChainSystem.Server.Controllers
         // DELETE api/supplier/5
         [HttpDelete("{id}")]
         [Authorize]
-        public ActionResult Delete(int id)
+        public SupplyResponse Delete(int id)
         {
             var entity = _dbContext.Supplier.SingleOrDefault(p => p.SupplierId == id);
-            if (entity == null) return Ok(SupplyResponse.NotFound());
+            if (entity == null) return SupplyResponse.NotFound("supplier", id + "");
             _dbContext.Remove(entity);
             _dbContext.SaveChanges();
-            return Ok(SupplyResponse.Ok());
+            return SupplyResponse.Ok();
         }
     }
 }

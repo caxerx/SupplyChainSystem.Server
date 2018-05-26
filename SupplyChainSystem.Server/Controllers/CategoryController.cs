@@ -26,27 +26,28 @@ namespace SupplyChainSystem.Server.Controllers
         // GET api/user
         [HttpGet]
         [Authorize]
-        public ActionResult Get()
+        public SupplyResponse Get()
         {
             var items = _dbContext.Category.Select(p => p);
-            return Ok(SupplyResponse.Ok(items));
+            return SupplyResponse.Ok(items);
         }
 
         // GET api/user/3
         [HttpGet("{id}")]
         [Authorize]
-        public ActionResult Get(int id)
+        public SupplyResponse Get(int id)
         {
             var item = _dbContext.Category.SingleOrDefault(p => p.CategoryId == id);
-            if (item == null) return Ok(SupplyResponse.NotFound());
-            return Ok(SupplyResponse.Ok(item));
+            if (item == null) return SupplyResponse.NotFound("categort", id + "");
+            return SupplyResponse.Ok(item);
         }
 
         // POST api/user
         [HttpPost]
         [Authorize]
-        public ActionResult Post([FromBody] Category category)
+        public SupplyResponse Post([FromBody] Category category)
         {
+            if (string.IsNullOrWhiteSpace(category.CategoryName)) return SupplyResponse.RequiredFieldEmpty();
             _dbContext.Category.Add(category);
             _dbContext.SaveChanges();
             return Get(category.CategoryId);
@@ -56,11 +57,11 @@ namespace SupplyChainSystem.Server.Controllers
         // PUT api/user/5
         [HttpPut("{id}")]
         [Authorize]
-        public ActionResult Put(int id, [FromBody] Category category)
+        public SupplyResponse Put(int id, [FromBody] Category category)
         {
             var entity = _dbContext.Category.AsNoTracking().SingleOrDefault(p => p.CategoryId == id);
             if (entity == null) return Post(category);
-
+            if(string.IsNullOrWhiteSpace(category.CategoryName)) return SupplyResponse.RequiredFieldEmpty();
             _dbContext.Attach(category);
             _dbContext.Entry(category).State = EntityState.Modified;
             _dbContext.SaveChanges();
@@ -70,13 +71,13 @@ namespace SupplyChainSystem.Server.Controllers
         // DELETE api/user/5
         [HttpDelete("{id}")]
         [Authorize]
-        public ActionResult Delete(int id)
+        public SupplyResponse Delete(int id)
         {
             var entity = _dbContext.Category.SingleOrDefault(p => p.CategoryId == id);
-            if (entity == null) return BadRequest();
+            if (entity == null) return SupplyResponse.NotFound("categort", id + "");
             _dbContext.Remove(entity);
             _dbContext.SaveChanges();
-            return Ok(SupplyResponse.Ok());
+            return SupplyResponse.Ok();
         }
     }
 }

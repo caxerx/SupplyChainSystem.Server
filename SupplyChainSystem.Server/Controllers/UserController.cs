@@ -20,7 +20,7 @@ namespace SupplyChainSystem.Server.Controllers
         // GET api/user
         [HttpGet]
         [Authorize]
-        public ActionResult Get()
+        public SupplyResponse Get()
         {
             /*
              HOW TO FIND USERNAME AND ROLE OF USER
@@ -30,27 +30,31 @@ namespace SupplyChainSystem.Server.Controllers
             */
             var users = _dbContext.User.Select(p => p);
             foreach (var user in users) user.Password = null;
-
-            return Ok(SupplyResponse.Ok(users));
+            return SupplyResponse.Ok(users);
         }
 
         // GET api/user/3
         [HttpGet("{id}")]
         [Authorize]
-        public ActionResult Get(int id)
+        public SupplyResponse Get(int id)
         {
             var user = _dbContext.User.SingleOrDefault(p => p.UserId == id);
-            if (user == null) return Ok(SupplyResponse.NotFound());
+            if (user == null) return SupplyResponse.NotFound("user", id + "");
             user.Password = null;
-            return Ok(SupplyResponse.Ok(user));
+            return SupplyResponse.Ok(user);
         }
 
         // POST api/user
         //[HttpPost, Authorize(Roles = "Admin")]
         [HttpPost]
         [Authorize]
-        public ActionResult Post([FromBody] User user)
+        public SupplyResponse Post([FromBody] User user)
         {
+            if (string.IsNullOrWhiteSpace(user.UserName) || string.IsNullOrWhiteSpace(user.UserType) || string.IsNullOrWhiteSpace(user.Password))
+                return SupplyResponse.RequiredFieldEmpty();
+            var entity = _dbContext.User.AsNoTracking().SingleOrDefault(p => p.UserName == user.UserName);
+            if (entity != null)
+                return SupplyResponse.DuplicateEntry("user",user.UserName);
             user.UserId = 0;
             user.Password = HashUtilities.HashPassword(user.Password);
             _dbContext.User.Add(user);
@@ -61,17 +65,18 @@ namespace SupplyChainSystem.Server.Controllers
         // PUT api/user/5
         [HttpPut("{id}")]
         [Authorize]
-        public ActionResult Put(int id, [FromBody] User user)
+        public SupplyResponse Put(int id, [FromBody] User user)
         {
             var entity = _dbContext.User.AsNoTracking().SingleOrDefault(p => p.UserId == id);
-            if (entity == null) return Ok(SupplyResponse.NotFound());
-            if (string.IsNullOrEmpty(user.UserName) || string.IsNullOrEmpty(user.UserType))
-                return Ok(SupplyResponse.Fail("Required Field is Empty"));
+            if (entity == null) return SupplyResponse.NotFound("user", id + "");
+            if (string.IsNullOrWhiteSpace(user.UserName) || string.IsNullOrWhiteSpace(user.UserType))
+                return SupplyResponse.BadRequest("Required Field is Empty");
 
             user.UserId = id;
-
             var oldPw = entity.Password;
-            user.Password = string.IsNullOrEmpty(user.Password) ? oldPw : HashUtilities.HashPassword(user.Password);
+            user.Password = string.IsNullOrWhiteSpace(user.Password)
+                ? oldPw
+                : HashUtilities.HashPassword(user.Password);
 
             _dbContext.Attach(user);
             _dbContext.Entry(user).State = EntityState.Modified;
@@ -82,13 +87,13 @@ namespace SupplyChainSystem.Server.Controllers
         // DELETE api/user/5
         [HttpDelete("{id}")]
         [Authorize]
-        public ActionResult Delete(int id)
+        public SupplyResponse Delete(int id)
         {
-            var entity = _dbContext.User.SingleOrDefault(p => p.UserId == id);
-            if (entity == null) return Ok(SupplyResponse.NotFound());
-            _dbContext.Remove(entity);
+            var user = _dbContext.User.SingleOrDefault(p => p.UserId == id);
+            if (user == null) return SupplyResponse.NotFound("user", id + "");
+            _dbContext.Remove(user);
             _dbContext.SaveChanges();
-            return Ok(SupplyResponse.Ok());
+            return SupplyResponse.Ok();
         }
     }
 }

@@ -19,8 +19,10 @@ namespace SupplyChainSystem.Server
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<VirtualIdMap>().HasKey(sc => new {sc.ItemId, sc.VirtualItemId});
+            modelBuilder.Entity<VirtualIdMap>().HasKey(sc => new {sc.SupplierItemId, sc.VirtualItemId});
             modelBuilder.Entity<CategoryItem>().HasKey(sc => new {sc.VirtualItemId, sc.CategoryId});
+            modelBuilder.Entity<Item>().HasIndex(sc => sc.SupplierItemId).IsUnique();
+            modelBuilder.Entity<VirtualItem>().HasIndex(sc => sc.VirtualItemId).IsUnique();
         }
     }
 }

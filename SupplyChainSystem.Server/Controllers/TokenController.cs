@@ -30,7 +30,7 @@ namespace SupplyChainSystem.Server.Controllers
         [HttpPost]
         public IActionResult CreateToken([FromBody] LoginRequest login)
         {
-            IActionResult response = Ok(SupplyResponse.Fail("Unauthorized"));
+            IActionResult response = Ok(SupplyResponse.Fail("Unauthorized","User not found"));
             var user = Authenticate(login);
 
             if (user != null)
