@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SupplyChainSystem.Server.Models;
-
 namespace SupplyChainSystem.Server.Controllers
 {
     [Produces("application/json")]

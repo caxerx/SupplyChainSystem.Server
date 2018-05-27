@@ -21,21 +21,9 @@ namespace SupplyChainSystem.Server.Controllers
 
         [HttpGet("{id}")]
         [Authorize]
-        public SupplyResponse Get(string id, bool virtualid)
+        public SupplyResponse Get(string id, bool supplieritem)
         {
-            if (virtualid)
-            {
-                var item = _dbContext.VirtualItem.Include(a => a.VirtualIdMap).ThenInclude(b => b.Item)
-                    .SingleOrDefault(p => p.VirtualItemId.Equals(id));
-                if (item == null) return SupplyResponse.NotFound("virtual item", id);
-                var items = new List<string>();
-                if (item.VirtualIdMap != null)
-                    foreach (var virtualIdMap in item.VirtualIdMap)
-                        items.Add(virtualIdMap.SupplierItemId);
-
-                return SupplyResponse.Ok(items);
-            }
-            else
+            if (supplieritem)
             {
                 var item = _dbContext.Item.Include(a => a.VirtualIdMap).ThenInclude(b => b.VirtualItem)
                     .SingleOrDefault(p => p.SupplierItemId.Equals(id));
@@ -44,6 +32,18 @@ namespace SupplyChainSystem.Server.Controllers
                 if (item.VirtualIdMap != null)
                     foreach (var virtualIdMap in item.VirtualIdMap)
                         items.Add(virtualIdMap.VirtualItemId);
+
+                return SupplyResponse.Ok(items);
+            }
+            else
+            {
+                var item = _dbContext.VirtualItem.Include(a => a.VirtualIdMap).ThenInclude(b => b.Item)
+                    .SingleOrDefault(p => p.VirtualItemId.Equals(id));
+                if (item == null) return SupplyResponse.NotFound("virtual item", id);
+                var items = new List<string>();
+                if (item.VirtualIdMap != null)
+                    foreach (var virtualIdMap in item.VirtualIdMap)
+                        items.Add(virtualIdMap.SupplierItemId);
 
                 return SupplyResponse.Ok(items);
             }

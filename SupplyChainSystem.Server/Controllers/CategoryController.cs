@@ -74,7 +74,7 @@ namespace SupplyChainSystem.Server.Controllers
         public SupplyResponse Delete(int id)
         {
             var entity = _dbContext.Category.SingleOrDefault(p => p.CategoryId == id);
-            if (entity == null) return SupplyResponse.NotFound("categort", id + "");
+            if (entity == null) return SupplyResponse.NotFound("category", id + "");
             _dbContext.Remove(entity);
             _dbContext.SaveChanges();
             return SupplyResponse.Ok();

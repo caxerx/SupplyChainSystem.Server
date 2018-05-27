@@ -65,7 +65,7 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
 
-        // POST api/category/{id}/add
+        
         [HttpPost("{id}")]
         [Authorize]
         public SupplyResponse AddToCategory(int id, [FromBody] IdRequest idRequest)
