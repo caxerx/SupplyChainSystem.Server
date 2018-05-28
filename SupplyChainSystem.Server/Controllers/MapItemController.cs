@@ -80,7 +80,7 @@ namespace SupplyChainSystem.Server.Controllers
         public SupplyResponse Delete(string id, [FromBody] IdRequest idRequest)
         {
             var entity =
-                _dbContext.VirtualIdMap.SingleOrDefault(p => p.VirtualItemId == idRequest.Id && p.SupplierItemId == id);
+                _dbContext.VirtualIdMap.SingleOrDefault(p => p.VirtualItem.VirtualItemId == idRequest.Id && p.Item.SupplierItemId == id);
             if (entity == null) return SupplyResponse.NotFound("virtual map", $"{id}<->{idRequest.Id}");
             _dbContext.Remove(entity);
             _dbContext.SaveChanges();

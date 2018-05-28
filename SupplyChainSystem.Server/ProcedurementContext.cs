@@ -24,7 +24,7 @@ namespace SupplyChainSystem.Server
         {
             modelBuilder.Entity<Item>().HasAlternateKey(sc => sc.SupplierItemId);
             modelBuilder.Entity<VirtualItem>().HasAlternateKey(sc => sc.VirtualItemId);
-            modelBuilder.Entity<VirtualIdMap>().HasKey(sc => new { sc.SupplierItemId, sc.VirtualItemId });
+            modelBuilder.Entity<VirtualIdMap>().HasKey(sc => new {sc.ItemId, sc.VirtualItemId});
             modelBuilder.Entity<CategoryItem>().HasKey(sc => new {sc.VirtualItemId, sc.CategoryId});
         }
     }
