@@ -31,7 +31,7 @@ namespace SupplyChainSystem.Server.Controllers
                 var items = new List<string>();
                 if (item.VirtualIdMap != null)
                     foreach (var virtualIdMap in item.VirtualIdMap)
-                        items.Add(virtualIdMap.VirtualItemId);
+                        items.Add(virtualIdMap.VirtualItem.VirtualItemId);
 
                 return SupplyResponse.Ok(items);
             }
@@ -43,7 +43,7 @@ namespace SupplyChainSystem.Server.Controllers
                 var items = new List<string>();
                 if (item.VirtualIdMap != null)
                     foreach (var virtualIdMap in item.VirtualIdMap)
-                        items.Add(virtualIdMap.SupplierItemId);
+                        items.Add(virtualIdMap.Item.SupplierItemId);
 
                 return SupplyResponse.Ok(items);
             }
@@ -60,11 +60,12 @@ namespace SupplyChainSystem.Server.Controllers
 
             var virtualIdMap = new VirtualIdMap
             {
-                SupplierItemId = item.SupplierItemId,
-                VirtualItemId = vItem.VirtualItemId
+                ItemId = item.Id,
+                VirtualItemId = vItem.Id
             };
             if (_dbContext.VirtualIdMap.SingleOrDefault(p =>
-                    p.SupplierItemId == virtualIdMap.SupplierItemId && p.VirtualItemId == virtualIdMap.SupplierItemId) !=
+                    p.Item.SupplierItemId == virtualIdMap.Item.SupplierItemId &&
+                    p.VirtualItem.VirtualItemId == virtualIdMap.VirtualItem.VirtualItemId) !=
                 null)
                 return SupplyResponse.DuplicateEntry("virtual map", $"{id}<->{idRequest.Id}");
 

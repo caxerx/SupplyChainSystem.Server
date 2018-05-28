@@ -1,8 +1,11 @@
-﻿namespace SupplyChainSystem.Server.Models
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace SupplyChainSystem.Server.Models
 {
     public class CategoryItem
     {
-        public string VirtualItemId { get; set; }
+        public int VirtualItemId { get; set; }
         public VirtualItem VirtualItem { get; set; }
 
         public int CategoryId { get; set; }

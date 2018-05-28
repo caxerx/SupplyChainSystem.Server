@@ -33,7 +33,7 @@ namespace SupplyChainSystem.Server.Controllers
                     VirtualItemId = new List<string>()
                 };
 
-                foreach (var cateI in cate.CategoryItems) cateR.VirtualItemId.Add(cateI.VirtualItemId);
+                foreach (var cateI in cate.CategoryItems) cateR.VirtualItemId.Add(cateI.VirtualItem.VirtualItemId);
 
                 cate.CategoryItems = null;
                 cateRes.Add(cateR);
@@ -57,7 +57,7 @@ namespace SupplyChainSystem.Server.Controllers
                 VirtualItemId = new List<string>()
             };
 
-            foreach (var cateI in category.CategoryItems) cateRes.VirtualItemId.Add(cateI.VirtualItemId);
+            foreach (var cateI in category.CategoryItems) cateRes.VirtualItemId.Add(cateI.VirtualItem.VirtualItemId);
 
             category.CategoryItems = null;
 
@@ -65,7 +65,6 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
 
-        
         [HttpPost("{id}")]
         [Authorize]
         public SupplyResponse AddToCategory(int id, [FromBody] IdRequest idRequest)
@@ -78,7 +77,7 @@ namespace SupplyChainSystem.Server.Controllers
             if (vItm == null) return SupplyResponse.NotFound("virtual item", idRequest.Id + "");
 
             var cItem = _dbContext.CategoryItem.SingleOrDefault(p =>
-                p.CategoryId == category.CategoryId && p.VirtualItemId == vItm.VirtualItemId);
+                p.CategoryId == category.CategoryId && p.VirtualItem.VirtualItemId == vItm.VirtualItemId);
             if (cItem != null)
                 return SupplyResponse.DuplicateEntry("category item",
                     $"\"{cItem.VirtualItemId} in {cItem.CategoryId}\"");
@@ -86,7 +85,7 @@ namespace SupplyChainSystem.Server.Controllers
             var cateItm = new CategoryItem
             {
                 CategoryId = category.CategoryId,
-                VirtualItemId = vItm.VirtualItemId
+                VirtualItemId = vItm.Id
             };
 
             _dbContext.CategoryItem.Add(cateItm);
@@ -100,7 +99,8 @@ namespace SupplyChainSystem.Server.Controllers
         public SupplyResponse RemoveFromCategory(int id, [FromBody] IdRequest idRequest)
         {
             var cItem =
-                _dbContext.CategoryItem.SingleOrDefault(p => p.CategoryId == id && p.VirtualItemId == idRequest.Id);
+                _dbContext.CategoryItem.SingleOrDefault(p =>
+                    p.CategoryId == id && p.VirtualItem.VirtualItemId == idRequest.Id);
             if (cItem == null) return SupplyResponse.NotFound("category item", $"\"{idRequest.Id} in {id}\"");
 
             _dbContext.CategoryItem.Remove(cItem);

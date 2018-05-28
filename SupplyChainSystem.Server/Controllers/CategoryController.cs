@@ -38,7 +38,7 @@ namespace SupplyChainSystem.Server.Controllers
         public SupplyResponse Get(int id)
         {
             var item = _dbContext.Category.SingleOrDefault(p => p.CategoryId == id);
-            if (item == null) return SupplyResponse.NotFound("categort", id + "");
+            if (item == null) return SupplyResponse.NotFound("categorty", id + "");
             return SupplyResponse.Ok(item);
         }
 

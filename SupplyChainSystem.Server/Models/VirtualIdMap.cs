@@ -1,12 +1,15 @@
-﻿namespace SupplyChainSystem.Server.Models
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace SupplyChainSystem.Server.Models
 {
     public class VirtualIdMap
     {
 
-        public string VirtualItemId { get; set; }
+        public int VirtualItemId { get; set; }
         public VirtualItem VirtualItem { get; set; }
 
-        public string SupplierItemId { get; set; }
+        public int ItemId { get; set; }
         public Item Item { get; set; }
     }
 }
