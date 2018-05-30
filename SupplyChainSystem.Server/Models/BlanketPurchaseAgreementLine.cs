@@ -7,17 +7,15 @@ using System.Threading.Tasks;
 
 namespace SupplyChainSystem.Server.Models
 {
-    public class BlanketPurchaseAgreementDetails
+    public class BlanketPurchaseAgreementLine
     {
         [Key] [ForeignKey("Agreement")] public int AgreementId { get; set; }
+        [Required] public int ItemId { get; set; }
+        [Required] public int Quantity { get; set; }
+        [Required] public string Unit { get; set; }
+        [Required] public double Price { get; set; }
 
-
-
-        public string Account { get; set; }
-
-
+        public Item Item { get; set; }
         public Agreement Agreement { get; set; }
-
-
     }
 }

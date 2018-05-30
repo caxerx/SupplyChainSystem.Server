@@ -7,6 +7,6 @@ namespace SupplyChainSystem.Server.Models
 {
     public enum AgreementType
     {
-        Planned,Blanket,Contract
+        Blanket,Contract
     }
 }

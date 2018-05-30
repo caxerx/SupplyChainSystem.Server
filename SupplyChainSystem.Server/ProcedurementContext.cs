@@ -16,12 +16,9 @@ namespace SupplyChainSystem.Server
         public DbSet<VirtualIdMap> VirtualIdMap { set; get; }
         public DbSet<VirtualItem> VirtualItem { set; get; }
         public DbSet<CategoryItem> CategoryItem { get; set; }
-        public DbSet<Agreement> Agreement { get; set; }
         public DbSet<RestaurantType> RestaurantType { get; set; }
         public DbSet<Stock> Stock { get; set; }
         public DbSet<Restaurant> Restaurant { get; set; }
-        public DbSet<BlanketPurchaseAgreementDetails> BlanketPurchaseAgreementDetails { get; set; }
-        public DbSet<BlanketPurchaseAgreementLine> BlanketPurchaseAgreementLine { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

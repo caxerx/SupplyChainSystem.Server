@@ -7,14 +7,11 @@ using System.Threading.Tasks;
 
 namespace SupplyChainSystem.Server.Models
 {
-    public class BlanketPurchaseAgreementDetails
+    public class ContractPurchaseAgreementDetails
     {
         [Key] [ForeignKey("Agreement")] public int AgreementId { get; set; }
 
-
-
         public string Account { get; set; }
-
 
         public Agreement Agreement { get; set; }
 

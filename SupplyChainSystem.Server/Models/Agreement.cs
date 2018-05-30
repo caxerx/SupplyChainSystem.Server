@@ -10,15 +10,19 @@ namespace SupplyChainSystem.Server.Models
     public class Agreement
     {
         [Key]
-        [MaxLength(20)]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int AgreementId { get; set; }
 
+        public string Currency { get; set; }
+
+        [Required] public int SupplierId { get; set; }
         [Required] public AgreementType AgreementType { get; set; }
         [Required] public DateTime StartDate { get; set; }
         [Required] public DateTime ExpiryDate { get; set; }
 
-        public BlanketPurchaseAgreementDetails BlanketPurchaseAgreementDetails { get; set; }
-        public ICollection<BlanketPurchaseAgreementLine> BlanketPurchaseAgreementLines { get; set; }
+
+        [Required] [ForeignKey("User")] public int CreateBy { get; set; }
+        public User User { get; set; }
+        public Supplier Supplier { get; set; }
     }
 }
