@@ -17,13 +17,16 @@ namespace SupplyChainSystem.Server
         public DbSet<VirtualItem> VirtualItem { set; get; }
         public DbSet<CategoryItem> CategoryItem { get; set; }
         public DbSet<Agreement> Agreement { get; set; }
+        public DbSet<RestaurantType> RestaurantType { get; set; }
+        public DbSet<Stock> Stock { get; set; }
+        public DbSet<Restaurant> Restaurant { get; set; }
         public DbSet<BlanketPurchaseAgreementDetails> BlanketPurchaseAgreementDetails { get; set; }
         public DbSet<BlanketPurchaseAgreementLine> BlanketPurchaseAgreementLine { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Item>().HasAlternateKey(sc => sc.SupplierItemId);
-            modelBuilder.Entity<VirtualItem>().HasAlternateKey(sc => sc.VirtualItemId);
+            modelBuilder.Entity<Item>().HasIndex(sc => sc.SupplierItemId).IsUnique();
+            modelBuilder.Entity<VirtualItem>().HasIndex(sc => sc.VirtualItemId).IsUnique();
             modelBuilder.Entity<VirtualIdMap>().HasKey(sc => new {sc.ItemId, sc.VirtualItemId});
             modelBuilder.Entity<CategoryItem>().HasKey(sc => new {sc.VirtualItemId, sc.CategoryId});
         }

@@ -57,7 +57,7 @@ namespace SupplyChainSystem.Server.Controllers
             if (entity == null) return SupplyResponse.NotFound("supplier", id + "");
             if (string.IsNullOrWhiteSpace(supplier.SupplierName))
                 return SupplyResponse.BadRequest("Required Field is Empty");
-
+            supplier.SupplierId = id;
             _dbContext.Attach(supplier);
             _dbContext.Entry(supplier).State = EntityState.Modified;
             _dbContext.SaveChanges();

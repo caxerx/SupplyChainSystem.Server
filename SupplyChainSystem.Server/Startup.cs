@@ -87,7 +87,7 @@ namespace SupplyChainSystem.Server
             {
                 //TEST USER
                 var testUser = dbContext.User.SingleOrDefault(p => p.UserName == "Test");
-                if (testUser == null) dbContext.User.Add(new User("Test", "Test", "ADMIN"));
+                if (testUser == null) dbContext.User.Add(new User("Test", "TestUser", "Test", UserType.Administrator));
 
                 dbContext.SaveChanges();
             }

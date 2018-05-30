@@ -28,15 +28,15 @@ namespace SupplyChainSystem.Server.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult CreateToken([FromBody] LoginRequest login)
+        public SupplyResponse CreateToken([FromBody] LoginRequest login)
         {
-            IActionResult response = Ok(SupplyResponse.Fail("Unauthorized","User not found"));
+            var response = SupplyResponse.Fail("Unauthorized", "User not found");
             var user = Authenticate(login);
 
             if (user != null)
             {
                 var tokenString = BuildToken(user);
-                response = Ok(SupplyResponse.Ok(new {token = tokenString}));
+                response = SupplyResponse.Ok(new {token = tokenString, userType = user.UserType});
             }
 
             return response;
@@ -57,7 +57,7 @@ namespace SupplyChainSystem.Server.Controllers
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Role, user.UserType)
+                new Claim(ClaimTypes.Role, user.UserType.ToString())
             };
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],
                 _config["Jwt:Issuer"],

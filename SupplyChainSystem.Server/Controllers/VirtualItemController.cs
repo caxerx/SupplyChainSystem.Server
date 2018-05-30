@@ -46,7 +46,7 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Post([FromBody] VirtualItem item)
         {
-            if (string.IsNullOrWhiteSpace(item.VirtualItemName)|| string.IsNullOrWhiteSpace(item.VirtualItemId))
+            if (string.IsNullOrWhiteSpace(item.VirtualItemName) || string.IsNullOrWhiteSpace(item.VirtualItemId))
                 return SupplyResponse.RequiredFieldEmpty();
             if (_dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId == item.VirtualItemId) != null)
                 return SupplyResponse.DuplicateEntry("item", item.VirtualItemId);
@@ -58,19 +58,20 @@ namespace SupplyChainSystem.Server.Controllers
         // PUT api/user/5
         [HttpPut("{id}")]
         [Authorize]
-        public SupplyResponse Put(int id, [FromBody] VirtualItem item)
+        public SupplyResponse Put(string id, [FromBody] VirtualItem item)
         {
-            if (id == 0 || string.IsNullOrWhiteSpace(item.VirtualItemName))
+            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(item.VirtualItemName) ||
+                string.IsNullOrWhiteSpace(item.VirtualItemId))
                 return SupplyResponse.RequiredFieldEmpty();
 
-            var entity = _dbContext.VirtualItem.SingleOrDefault(p => p.Id == id);
+            var entity = _dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId.Equals(id));
             if (entity == null) return Post(item);
 
             if (entity.VirtualItemId != item.VirtualItemId &&
                 _dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId == item.VirtualItemId) != null)
                 return SupplyResponse.DuplicateEntry("virtual item", item.VirtualItemId);
 
-            item.Id = id;
+            item.Id = entity.Id;
 
             var entry = _dbContext.Entry(entity);
             entry.CurrentValues.SetValues(item);
@@ -82,9 +83,9 @@ namespace SupplyChainSystem.Server.Controllers
         // DELETE api/user/5
         [HttpDelete("{id}")]
         [Authorize]
-        public SupplyResponse Delete(int id)
+        public SupplyResponse Delete(string id)
         {
-            var entity = _dbContext.VirtualItem.SingleOrDefault(p => p.Id == id);
+            var entity = _dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId.Equals(id));
             if (entity == null) return SupplyResponse.NotFound("virtual item", id + "");
             _dbContext.Remove(entity);
             _dbContext.SaveChanges();

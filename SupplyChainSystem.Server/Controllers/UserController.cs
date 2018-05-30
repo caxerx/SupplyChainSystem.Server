@@ -50,11 +50,11 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Post([FromBody] User user)
         {
-            if (string.IsNullOrWhiteSpace(user.UserName) || string.IsNullOrWhiteSpace(user.UserType) || string.IsNullOrWhiteSpace(user.Password))
+            if (string.IsNullOrWhiteSpace(user.UserName) || string.IsNullOrWhiteSpace(user.Password))
                 return SupplyResponse.RequiredFieldEmpty();
             var entity = _dbContext.User.AsNoTracking().SingleOrDefault(p => p.UserName == user.UserName);
             if (entity != null)
-                return SupplyResponse.DuplicateEntry("user",user.UserName);
+                return SupplyResponse.DuplicateEntry("user", user.UserName);
             user.UserId = 0;
             user.Password = HashUtilities.HashPassword(user.Password);
             _dbContext.User.Add(user);
@@ -69,7 +69,7 @@ namespace SupplyChainSystem.Server.Controllers
         {
             var entity = _dbContext.User.AsNoTracking().SingleOrDefault(p => p.UserId == id);
             if (entity == null) return SupplyResponse.NotFound("user", id + "");
-            if (string.IsNullOrWhiteSpace(user.UserName) || string.IsNullOrWhiteSpace(user.UserType))
+            if (string.IsNullOrWhiteSpace(user.UserName))
                 return SupplyResponse.BadRequest("Required Field is Empty");
 
             user.UserId = id;

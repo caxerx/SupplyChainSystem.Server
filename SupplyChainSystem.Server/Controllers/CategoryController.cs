@@ -61,7 +61,8 @@ namespace SupplyChainSystem.Server.Controllers
         {
             var entity = _dbContext.Category.AsNoTracking().SingleOrDefault(p => p.CategoryId == id);
             if (entity == null) return Post(category);
-            if(string.IsNullOrWhiteSpace(category.CategoryName)) return SupplyResponse.RequiredFieldEmpty();
+            if (string.IsNullOrWhiteSpace(category.CategoryName)) return SupplyResponse.RequiredFieldEmpty();
+            category.CategoryId = id;
             _dbContext.Attach(category);
             _dbContext.Entry(category).State = EntityState.Modified;
             _dbContext.SaveChanges();

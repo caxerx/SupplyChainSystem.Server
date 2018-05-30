@@ -9,9 +9,10 @@ namespace SupplyChainSystem.Server.Models
         {
         }
 
-        public User(string username, string password, string type)
+        public User(string username, string name, string password, UserType type)
         {
             UserName = username;
+            Name = name;
             Password = HashUtilities.HashPassword(password);
             UserType = type;
         }
@@ -20,9 +21,11 @@ namespace SupplyChainSystem.Server.Models
         [Key]
         public int UserId { get; set; }
 
-        [Required] public string UserType { get; set; }
+        [Required] public UserType UserType { get; set; }
 
         [Required] public string UserName { get; set; }
+
+        [Required] public string Name { get; set; }
 
         [Required] public string Password { get; set; }
     }

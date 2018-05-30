@@ -53,23 +53,18 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Post(string id, [FromBody] IdRequest idRequest)
         {
+            if (idRequest == null || string.IsNullOrWhiteSpace(idRequest.Id))
+                return SupplyResponse.RequiredFieldEmpty();
             var vItem = _dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId == idRequest.Id);
             var item = _dbContext.Item.SingleOrDefault(p => p.SupplierItemId == id);
             if (item == null) return SupplyResponse.NotFound("item", id);
             if (vItem == null) return SupplyResponse.NotFound("virtual item", idRequest.Id);
 
-            var virtualIdMap = new VirtualIdMap
-            {
-                ItemId = item.Id,
-                VirtualItemId = vItem.Id
-            };
             if (_dbContext.VirtualIdMap.SingleOrDefault(p =>
-                    p.Item.SupplierItemId == virtualIdMap.Item.SupplierItemId &&
-                    p.VirtualItem.VirtualItemId == virtualIdMap.VirtualItem.VirtualItemId) !=
-                null)
+                    p.Item.SupplierItemId.Equals(id) && p.VirtualItem.VirtualItemId.Equals(idRequest.Id)) != null)
                 return SupplyResponse.DuplicateEntry("virtual map", $"{id}<->{idRequest.Id}");
 
-            _dbContext.VirtualIdMap.Add(virtualIdMap);
+            _dbContext.VirtualIdMap.Add(new VirtualIdMap {ItemId = item.Id, VirtualItemId = vItem.Id});
             _dbContext.SaveChanges();
             return SupplyResponse.Ok();
         }
@@ -80,7 +75,8 @@ namespace SupplyChainSystem.Server.Controllers
         public SupplyResponse Delete(string id, [FromBody] IdRequest idRequest)
         {
             var entity =
-                _dbContext.VirtualIdMap.SingleOrDefault(p => p.VirtualItem.VirtualItemId == idRequest.Id && p.Item.SupplierItemId == id);
+                _dbContext.VirtualIdMap.SingleOrDefault(p =>
+                    p.VirtualItem.VirtualItemId == idRequest.Id && p.Item.SupplierItemId == id);
             if (entity == null) return SupplyResponse.NotFound("virtual map", $"{id}<->{idRequest.Id}");
             _dbContext.Remove(entity);
             _dbContext.SaveChanges();
