@@ -22,11 +22,6 @@ namespace SupplyChainSystem.Server
         public string Name { get; set; }
     }
 
-    public class RequestRequest
-    {
-        public ICollection<ItemRequest> Items { get; set; }
-    }
-
     public class ItemRequest
     {
         public string VirtualItemId { get; set; }

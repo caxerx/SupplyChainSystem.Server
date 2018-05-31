@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
@@ -50,13 +51,14 @@ namespace SupplyChainSystem.Server.Controllers
                 return SupplyResponse.Fail("Unauthorize", "Your are not the restaurant manager.");
             var restaurantId = restaurantManager.Restaurant.RestaurantId;
             var requests = _dbContext.Request.Where(p => p.RestaurantId == restaurantId)
-                .SingleOrDefault(p => p.RestaurantId == id);
+                .SingleOrDefault(p => p.RequestId == id);
+            if (requests == null) return SupplyResponse.NotFound("request", id + "");
             return SupplyResponse.Ok(requests);
         }
 
         [HttpPost]
         [Authorize]
-        public SupplyResponse Post([FromBody] RequestRequest requestRequest)
+        public SupplyResponse Post([FromBody] ICollection<ItemRequest> requestRequest)
         {
             var currentUser = HttpContext.User;
             var dbUser =
@@ -66,6 +68,22 @@ namespace SupplyChainSystem.Server.Controllers
             var restaurantManager = dbUser.RestaurantManager;
             if (restaurantManager == null)
                 return SupplyResponse.Fail("Unauthorize", "Your are not the restaurant manager.");
+
+            var itemList = new List<RequestItem>();
+
+            foreach (var item in requestRequest)
+            {
+                var virtualItem =
+                    _dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId.Equals(item.VirtualItemId));
+                if (virtualItem == null) return SupplyResponse.NotFound("virtual item", item.VirtualItemId);
+                var requestItem = new RequestItem
+                {
+                    VirtualItemId = virtualItem.Id,
+                    Quantity = item.Quantity
+                };
+                itemList.Add(requestItem);
+            }
+
             var restaurantId = restaurantManager.Restaurant.RestaurantId;
 
             var request = new Models.Request
@@ -77,19 +95,10 @@ namespace SupplyChainSystem.Server.Controllers
             _dbContext.Request.Add(request);
             _dbContext.SaveChanges();
 
-
-            foreach (var item in requestRequest.Items)
+            foreach (var item in itemList)
             {
-                var virtualItem =
-                    _dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId.Equals(item.VirtualItemId));
-                if (virtualItem == null) return SupplyResponse.NotFound("virtual item", item.VirtualItemId);
-                var requestItem = new RequestItem
-                {
-                    RequestId = request.RequestId,
-                    VirtualItemId = virtualItem.Id,
-                    Quantity = item.Quantity
-                };
-                _dbContext.RequestItem.Add(requestItem);
+                item.RequestId = request.RequestId;
+                _dbContext.RequestItem.Add(item);
             }
 
             _dbContext.SaveChanges();
