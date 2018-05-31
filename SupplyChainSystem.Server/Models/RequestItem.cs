@@ -5,16 +5,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Newtonsoft.Json;
 
 namespace SupplyChainSystem.Server.Models
 {
     public class RequestItem
     {
         [Key] [ForeignKey("Request")] public int RequestId { get; set; }
-        public Request Request { get; set; }
+        [JsonIgnore] public Request Request { get; set; }
 
         public int VirtualItemId { get; set; }
-        public VirtualItem VirtualItem { get; set; }
+        [JsonIgnore] public VirtualItem VirtualItem { get; set; }
 
         public int Quantity { get; set; }
     }

@@ -19,11 +19,15 @@ namespace SupplyChainSystem.Server
         public DbSet<RestaurantType> RestaurantType { get; set; }
         public DbSet<Stock> Stock { get; set; }
         public DbSet<Restaurant> Restaurant { get; set; }
+        public DbSet<RestaurantManager> RestaurantManager { get; set; }
+        public DbSet<Models.Request> Request { get; set; }
+        public DbSet<RequestItem> RequestItem { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Item>().HasIndex(sc => sc.SupplierItemId).IsUnique();
             modelBuilder.Entity<VirtualItem>().HasIndex(sc => sc.VirtualItemId).IsUnique();
+            modelBuilder.Entity<User>().HasIndex(sc => sc.UserName).IsUnique();
             modelBuilder.Entity<VirtualIdMap>().HasKey(sc => new {sc.ItemId, sc.VirtualItemId});
             modelBuilder.Entity<CategoryItem>().HasKey(sc => new {sc.VirtualItemId, sc.CategoryId});
         }

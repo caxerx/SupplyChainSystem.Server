@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace SupplyChainSystem.Server.Models
 {
@@ -22,7 +23,7 @@ namespace SupplyChainSystem.Server.Models
 
 
         [Required] [ForeignKey("User")] public int CreateBy { get; set; }
-        public User User { get; set; }
-        public Supplier Supplier { get; set; }
+        [JsonIgnore] public User User { get; set; }
+        [JsonIgnore] public Supplier Supplier { get; set; }
     }
 }

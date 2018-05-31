@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace SupplyChainSystem.Server.Models
 {
@@ -11,11 +12,12 @@ namespace SupplyChainSystem.Server.Models
     {
         [Key] [ForeignKey("Agreement")] public int AgreementId { get; set; }
         [Required] public int ItemId { get; set; }
-        [Required] public int Quantity { get; set; }
+        [Required] public double PromisedQuantity { get; set; }
+        [Required] public double MinimumQuantity { get; set; }
         [Required] public string Unit { get; set; }
         [Required] public double Price { get; set; }
 
-        public Item Item { get; set; }
-        public Agreement Agreement { get; set; }
+        [JsonIgnore] public Item Item { get; set; }
+        [JsonIgnore] public Agreement Agreement { get; set; }
     }
 }

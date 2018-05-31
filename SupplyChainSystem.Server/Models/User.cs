@@ -23,10 +23,13 @@ namespace SupplyChainSystem.Server.Models
 
         [Required] public UserType UserType { get; set; }
 
+        [MaxLength(20)]
         [Required] public string UserName { get; set; }
 
         [Required] public string Name { get; set; }
 
         [Required] public string Password { get; set; }
+
+        public RestaurantManager RestaurantManager { get; set; }
     }
 }

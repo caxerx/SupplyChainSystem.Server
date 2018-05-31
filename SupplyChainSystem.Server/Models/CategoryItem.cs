@@ -1,14 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Newtonsoft.Json;
 
 namespace SupplyChainSystem.Server.Models
 {
     public class CategoryItem
     {
         public int VirtualItemId { get; set; }
-        public VirtualItem VirtualItem { get; set; }
+        [JsonIgnore] public VirtualItem VirtualItem { get; set; }
 
         public int CategoryId { get; set; }
-        public Category Category { get; set; }
+        [JsonIgnore] public Category Category { get; set; }
     }
 }

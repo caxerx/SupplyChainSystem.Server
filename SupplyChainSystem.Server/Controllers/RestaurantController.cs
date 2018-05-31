@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,11 +18,6 @@ namespace SupplyChainSystem.Server.Controllers
             _dbContext = dbContext;
         }
 
-        /**
-         •	Item Management
-            o	Create and Edit Item, Category
-            o	Virtual ID mapping
-         */
 
         // GET api/user
         [HttpGet]
@@ -50,8 +46,15 @@ namespace SupplyChainSystem.Server.Controllers
             if (string.IsNullOrWhiteSpace(restaurant.RestaurantName) ||
                 string.IsNullOrWhiteSpace(restaurant.RestaurantLocation) ||
                 restaurant.RestaurantTypeId == 0) return SupplyResponse.RequiredFieldEmpty();
-            var stock = _dbContext.Stock.Add(new Stock());
-            restaurant.StockId = stock.Entity.StockId;
+
+            if (_dbContext.RestaurantType.SingleOrDefault(p => p.RestaurantTypeId == restaurant.RestaurantTypeId) ==
+                null) return SupplyResponse.NotFound("restaurant type", restaurant.RestaurantTypeId + "");
+
+            var stock = new Stock();
+            _dbContext.Stock.Add(stock);
+            _dbContext.SaveChanges();
+
+            restaurant.StockId = stock.StockId;
             _dbContext.Restaurant.Add(restaurant);
             _dbContext.SaveChanges();
             return Get(restaurant.RestaurantId);
@@ -68,6 +71,10 @@ namespace SupplyChainSystem.Server.Controllers
             if (string.IsNullOrWhiteSpace(restaurant.RestaurantName) ||
                 string.IsNullOrWhiteSpace(restaurant.RestaurantLocation) ||
                 restaurant.RestaurantTypeId == 0) return SupplyResponse.RequiredFieldEmpty();
+
+            if (_dbContext.RestaurantType.SingleOrDefault(p => p.RestaurantTypeId == restaurant.RestaurantTypeId) ==
+                null) return SupplyResponse.NotFound("restaurant type", restaurant.RestaurantTypeId + "");
+
             restaurant.RestaurantId = id;
             _dbContext.Attach(restaurant);
             _dbContext.Entry(restaurant).State = EntityState.Modified;

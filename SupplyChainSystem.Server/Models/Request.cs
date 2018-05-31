@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Newtonsoft.Json;
 
 namespace SupplyChainSystem.Server.Models
 {
@@ -14,8 +15,11 @@ namespace SupplyChainSystem.Server.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int RequestId { get; set; }
 
+        public int RestaurantId { get; set; }
+        [JsonIgnore] public Restaurant Restaurant { get; set; }
+
         [ForeignKey("User")] public int Creator { get; set; }
-        public User User { get; set; }
+        [JsonIgnore] public User User { get; set; }
 
         public ICollection<RequestItem> RequestItem { get; set; }
     }

@@ -12,5 +12,7 @@ namespace SupplyChainSystem.Server.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public int StockId { get; set; }
+
+        public int StockType { get; set; }
     }
 }
