@@ -62,6 +62,7 @@ namespace SupplyChainSystem.Server
             services.AddDbContext<ProcedurementContext>(options =>
             {
                 options.UseMySQL(Configuration.GetConnectionString("DefaultConnection"));
+                options.EnableSensitiveDataLogging();
             });
         }
 
@@ -80,7 +81,7 @@ namespace SupplyChainSystem.Server
             //allow corss origin for test
             app.UseMvc();
 
-            dbContext.Database.EnsureDeleted();
+            //dbContext.Database.EnsureDeleted();
             dbContext.Database.EnsureCreated();
 
             if (env.IsDevelopment())

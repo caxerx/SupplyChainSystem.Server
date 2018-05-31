@@ -11,11 +11,11 @@ namespace SupplyChainSystem.Server.Controllers
 {
     [Produces("application/json")]
     [Route("api/[controller]")]
-    public class RequestController : Controller
+    public class RestaurantRequestController : Controller
     {
         private readonly ProcedurementContext _dbContext;
 
-        public RequestController(ProcedurementContext dbContext)
+        public RestaurantRequestController(ProcedurementContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -33,7 +33,8 @@ namespace SupplyChainSystem.Server.Controllers
             if (restaurantManager == null)
                 return SupplyResponse.Fail("Unauthorize", "Your are not the restaurant manager.");
             var restaurantId = restaurantManager.Restaurant.RestaurantId;
-            var requests = _dbContext.Request.Where(p => p.RestaurantId == restaurantId).Select(p => p);
+            var requests = _dbContext.Request.Include(p => p.RequestItem).Where(p => p.RestaurantId == restaurantId)
+                .Select(p => p);
             return SupplyResponse.Ok(requests);
         }
 
@@ -50,7 +51,7 @@ namespace SupplyChainSystem.Server.Controllers
             if (restaurantManager == null)
                 return SupplyResponse.Fail("Unauthorize", "Your are not the restaurant manager.");
             var restaurantId = restaurantManager.Restaurant.RestaurantId;
-            var requests = _dbContext.Request.Where(p => p.RestaurantId == restaurantId)
+            var requests = _dbContext.Request.Include(p => p.RequestItem).Where(p => p.RestaurantId == restaurantId)
                 .SingleOrDefault(p => p.RequestId == id);
             if (requests == null) return SupplyResponse.NotFound("request", id + "");
             return SupplyResponse.Ok(requests);
@@ -69,6 +70,7 @@ namespace SupplyChainSystem.Server.Controllers
             if (restaurantManager == null)
                 return SupplyResponse.Fail("Unauthorize", "Your are not the restaurant manager.");
 
+            var itemMap = new Dictionary<int, int>();
             var itemList = new List<RequestItem>();
 
             foreach (var item in requestRequest)
@@ -76,32 +78,49 @@ namespace SupplyChainSystem.Server.Controllers
                 var virtualItem =
                     _dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId.Equals(item.VirtualItemId));
                 if (virtualItem == null) return SupplyResponse.NotFound("virtual item", item.VirtualItemId);
+                if (itemMap.ContainsKey(virtualItem.Id))
+                {
+                    itemMap[virtualItem.Id] += item.Quantity;
+                }
+                else
+                {
+                    itemMap.Add(virtualItem.Id, item.Quantity);
+                }
+            }
+
+            foreach (var (itemId, qty) in itemMap)
+            {
                 var requestItem = new RequestItem
                 {
-                    VirtualItemId = virtualItem.Id,
-                    Quantity = item.Quantity
+                    VirtualItemId = itemId,
+                    Quantity = qty
                 };
                 itemList.Add(requestItem);
             }
 
-            var restaurantId = restaurantManager.Restaurant.RestaurantId;
+            var restaurantId = restaurantManager.RestaurantId;
+            var userId = dbUser.UserId;
 
             var request = new Models.Request
             {
                 RestaurantId = restaurantId,
-                Creator = dbUser.UserId
+                RequestCreator = userId
             };
 
             _dbContext.Request.Add(request);
             _dbContext.SaveChanges();
 
+            var requestId = request.RequestId;
+            _dbContext.Entry(request).State = EntityState.Detached;
+
+
             foreach (var item in itemList)
             {
-                item.RequestId = request.RequestId;
+                item.RequestId = requestId;
                 _dbContext.RequestItem.Add(item);
+                _dbContext.SaveChanges();
+                _dbContext.Entry(item).State = EntityState.Detached;
             }
-
-            _dbContext.SaveChanges();
 
             return Get(request.RequestId);
         }
@@ -111,7 +130,7 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Delete(int id, [FromBody] IdRequest idRequest)
         {
-            return SupplyResponse.Ok();
+            return SupplyResponse.Fail("Unimplemented", "I still working hard on this");
         }
     }
 }

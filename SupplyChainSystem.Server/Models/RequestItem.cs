@@ -11,7 +11,7 @@ namespace SupplyChainSystem.Server.Models
 {
     public class RequestItem
     {
-        [Key] [ForeignKey("Request")] public int RequestId { get; set; }
+        [ForeignKey("Request")] public int RequestId { get; set; }
         [JsonIgnore] public Request Request { get; set; }
 
         public int VirtualItemId { get; set; }

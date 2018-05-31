@@ -18,9 +18,10 @@ namespace SupplyChainSystem.Server.Models
         public int RestaurantId { get; set; }
         [JsonIgnore] public Restaurant Restaurant { get; set; }
 
-        [ForeignKey("User")] public int Creator { get; set; }
+        [ForeignKey("User")] public int RequestCreator { get; set; }
         [JsonIgnore] public User User { get; set; }
 
+        public int RequestStatus { get; set; }
         public ICollection<RequestItem> RequestItem { get; set; }
     }
 }

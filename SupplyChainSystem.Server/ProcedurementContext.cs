@@ -30,6 +30,7 @@ namespace SupplyChainSystem.Server
             modelBuilder.Entity<User>().HasIndex(sc => sc.UserName).IsUnique();
             modelBuilder.Entity<VirtualIdMap>().HasKey(sc => new {sc.ItemId, sc.VirtualItemId});
             modelBuilder.Entity<CategoryItem>().HasKey(sc => new {sc.VirtualItemId, sc.CategoryId});
+            modelBuilder.Entity<RequestItem>().HasKey(sc => new {sc.RequestId, sc.VirtualItemId});
         }
     }
 }

@@ -23,23 +23,28 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Get()
         {
-            var category = _dbContext.Category.Include(a => a.CategoryItems).Select(p => p);
-            var cateRes = new List<CategoryItemResponse>();
-            foreach (var cate in category)
+            var categories = _dbContext.Category.Include(a => a.CategoryItems).ThenInclude(a=>a.VirtualItem).Select(p => p);
+
+            var categoryItemResponses = new List<CategoryItemResponse>();
+            foreach (var category in categories)
             {
-                var cateR = new CategoryItemResponse
+                var categoryItemResponse = new CategoryItemResponse
                 {
-                    Category = cate,
+                    Category = category,
                     VirtualItemId = new List<string>()
                 };
 
-                foreach (var cateI in cate.CategoryItems) cateR.VirtualItemId.Add(cateI.VirtualItem.VirtualItemId);
+                if (category.CategoryItems != null)
+                {
+                    foreach (var categoryItem in category.CategoryItems)
+                        categoryItemResponse.VirtualItemId.Add(categoryItem.VirtualItem.VirtualItemId);
+                    category.CategoryItems = null;
+                }
 
-                cate.CategoryItems = null;
-                cateRes.Add(cateR);
+                categoryItemResponses.Add(categoryItemResponse);
             }
 
-            return SupplyResponse.Ok(cateRes);
+            return SupplyResponse.Ok(categoryItemResponses);
         }
 
         // GET api/user/3
@@ -47,21 +52,26 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Get(int id)
         {
-            var category = _dbContext.Category.Include(a => a.CategoryItems).ThenInclude(a => a.VirtualItem)
-                .SingleOrDefault(p => p.CategoryId == id);
+            var category = _dbContext.Category.Include(a => a.CategoryItems).ThenInclude(a => a.VirtualItem).SingleOrDefault(p => p.CategoryId == id);
+
             if (category == null) return SupplyResponse.NotFound("category", id + "");
 
-            var cateRes = new CategoryItemResponse
+
+            var categoryItemResponse = new CategoryItemResponse
             {
                 Category = category,
                 VirtualItemId = new List<string>()
             };
 
-            foreach (var cateI in category.CategoryItems) cateRes.VirtualItemId.Add(cateI.VirtualItem.VirtualItemId);
+            if (category.CategoryItems != null)
+            {
+                foreach (var categoryItem in category.CategoryItems)
+                    categoryItemResponse.VirtualItemId.Add(categoryItem.VirtualItem.VirtualItemId);
+                category.CategoryItems = null;
+            }
 
-            category.CategoryItems = null;
 
-            return SupplyResponse.Ok(cateRes);
+            return SupplyResponse.Ok(categoryItemResponse);
         }
 
 
@@ -94,7 +104,8 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
         // POST api/category/{id}/add
-        [HttpDelete("{id}")]
+        [
+            HttpDelete("{id}")]
         [Authorize]
         public SupplyResponse RemoveFromCategory(int id, [FromBody] IdRequest idRequest)
         {
