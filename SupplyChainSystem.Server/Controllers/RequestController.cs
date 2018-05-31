@@ -54,9 +54,9 @@ namespace SupplyChainSystem.Server.Controllers
             return SupplyResponse.Ok(requests);
         }
 
-        [HttpPost("{id}")]
+        [HttpPost]
         [Authorize]
-        public SupplyResponse Post(int id, [FromBody] RequestRequest requestRequest)
+        public SupplyResponse Post([FromBody] RequestRequest requestRequest)
         {
             var currentUser = HttpContext.User;
             var dbUser =
@@ -74,7 +74,9 @@ namespace SupplyChainSystem.Server.Controllers
                 Creator = dbUser.UserId
             };
 
-            request = _dbContext.Request.Add(request).Entity;
+            _dbContext.Request.Add(request);
+            _dbContext.SaveChanges();
+
 
             foreach (var item in requestRequest.Items)
             {
@@ -100,7 +102,6 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Delete(int id, [FromBody] IdRequest idRequest)
         {
-
             return SupplyResponse.Ok();
         }
     }
