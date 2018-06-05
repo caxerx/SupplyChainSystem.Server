@@ -14,5 +14,7 @@ namespace SupplyChainSystem.Server.Models
         public int StockId { get; set; }
 
         public int StockType { get; set; }
+
+        public ICollection<StockItem> StockItem { get; set; }
     }
 }

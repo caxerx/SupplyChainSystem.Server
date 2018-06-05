@@ -9,10 +9,10 @@ using Newtonsoft.Json;
 
 namespace SupplyChainSystem.Server.Models
 {
-    public class RequestItem
+    public class StockItem
     {
-        [ForeignKey("Request")] public int RequestId { get; set; }
-        [JsonIgnore] public Request Request { get; set; }
+        [ForeignKey("Stock")] public int StockId { get; set; }
+        [JsonIgnore] public Stock Stock { get; set; }
 
         public int VirtualItemId { get; set; }
         [JsonIgnore] public VirtualItem VirtualItem { get; set; }
