@@ -47,7 +47,7 @@ namespace SupplyChainSystem.Server.Controllers
 
         [HttpPost]
         [Authorize]
-        public SupplyResponse Post([FromBody] RequestRequest requestRequest)
+        public SupplyResponse Post([FromBody] Models.Request requestRequest)
         {
             var currentUser = HttpContext.User;
             var dbUser =
@@ -62,18 +62,18 @@ namespace SupplyChainSystem.Server.Controllers
             var request = new Models.Request
             {
                 RestaurantId = restaurantId,
-                Creator = dbUser.UserId
+                RequestCreator = dbUser.UserId
             };
 
             _dbContext.Request.Add(request);
             _dbContext.SaveChanges();
 
 
-            foreach (var item in requestRequest.Items)
+            foreach (var item in requestRequest.RequestItem)
             {
                 var virtualItem =
-                    _dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId.Equals(item.VirtualItemId));
-                if (virtualItem == null) return SupplyResponse.NotFound("virtual item", item.VirtualItemId);
+                    _dbContext.VirtualItem.SingleOrDefault(p => p.Id.Equals(item.VirtualItemId));
+                if (virtualItem == null) return SupplyResponse.NotFound("virtual item", item.VirtualItem.VirtualItemId);
                 var requestItem = new RequestItem
                 {
                     RequestId = request.RequestId,
