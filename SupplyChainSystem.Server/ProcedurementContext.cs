@@ -22,6 +22,13 @@ namespace SupplyChainSystem.Server
         public DbSet<RestaurantManager> RestaurantManager { get; set; }
         public DbSet<Models.Request> Request { get; set; }
         public DbSet<RequestItem> RequestItem { get; set; }
+        public DbSet<Agreement> Agreement { get; set; }
+        public DbSet<BlanketPurchaseAgreementDetails> BlanketPurchaseAgreementDetails { get; set; }
+        public DbSet<BlanketPurchaseAgreementLine> BlanketPurchaseAgreementLine { get; set; }
+        public DbSet<ContractPurchaseAgreementDetails> ContractPurchaseAgreementDetails { get; set; }
+        public DbSet<ContractPurchaseAgreementLine> ContractPurchaseAgreementLine { get; set; }
+        public DbSet<PlannedPurchaseAgreementDetails> PlannedPurchaseAgreementDetails { get; set; }
+        public DbSet<PlannedPurchaseAgreementLine> PlannedPurchaseAgreementLine { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

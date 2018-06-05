@@ -49,7 +49,12 @@ namespace SupplyChainSystem.Server.Controllers
             var user = _dbContext.User.SingleOrDefault(p => p.UserId == idRequest.Id);
             if (restaurant == null) return SupplyResponse.NotFound("restaurant", id + "");
             if (user == null) return SupplyResponse.NotFound("user", idRequest.Id + "");
-            var restaurantManager = new RestaurantManager
+            var restaurantManager = _dbContext.RestaurantManager.SingleOrDefault(p => p.UserId == idRequest.Id);
+            if (restaurantManager != null)
+                return SupplyResponse.Fail("Already a Manager",
+                    "This user is already a manager of restaurant: " + restaurantManager.Restaurant.RestaurantName);
+
+            restaurantManager = new RestaurantManager
             {
                 RestaurantId = id,
                 UserId = idRequest.Id

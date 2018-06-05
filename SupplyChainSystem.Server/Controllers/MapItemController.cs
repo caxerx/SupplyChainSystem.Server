@@ -61,7 +61,7 @@ namespace SupplyChainSystem.Server.Controllers
             if (vItem == null) return SupplyResponse.NotFound("virtual item", idRequest.Id);
 
             if (_dbContext.VirtualIdMap.SingleOrDefault(p =>
-                    p.Item.SupplierItemId.Equals(id) && p.VirtualItem.VirtualItemId.Equals(idRequest.Id)) != null)
+                    p.ItemId == item.Id && p.VirtualItemId == vItem.Id) != null)
                 return SupplyResponse.DuplicateEntry("virtual map", $"{id}<->{idRequest.Id}");
 
             _dbContext.VirtualIdMap.Add(new VirtualIdMap {ItemId = item.Id, VirtualItemId = vItem.Id});
