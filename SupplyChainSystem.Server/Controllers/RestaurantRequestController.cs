@@ -39,8 +39,7 @@ namespace SupplyChainSystem.Server.Controllers
                 .Select(p => p);
 
 
-            dynamic refinedRequests = requests;
-            foreach (var request in refinedRequests)
+            foreach (var request in requests)
             {
                 foreach (var requestItem in request.RequestItem)
                 {
@@ -64,11 +63,17 @@ namespace SupplyChainSystem.Server.Controllers
             if (restaurantManager == null)
                 return SupplyResponse.Fail("Unauthorize", "Your are not the restaurant manager.");
             var restaurantId = restaurantManager.Restaurant.RestaurantId;
-            var requests = _dbContext.Request.Include(p => p.User).Include(p => p.RequestItem)
+            var request = _dbContext.Request.Include(p => p.User).Include(p => p.RequestItem)
                 .Where(p => p.RestaurantId == restaurantId)
                 .SingleOrDefault(p => p.RequestId == id);
-            if (requests == null) return SupplyResponse.NotFound("request", id + "");
-            return SupplyResponse.Ok(requests);
+            if (request == null) return SupplyResponse.NotFound("request", id + "");
+
+            foreach (var requestItem in request.RequestItem)
+            {
+                requestItem.VirtualItemName = requestItem.VirtualItem.VirtualItemName;
+            }
+
+            return SupplyResponse.Ok(request);
         }
 
         [HttpPost]
