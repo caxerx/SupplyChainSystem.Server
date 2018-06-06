@@ -64,6 +64,7 @@ namespace SupplyChainSystem.Server.Controllers
                 return SupplyResponse.Fail("Unauthorize", "Your are not the restaurant manager.");
             var restaurantId = restaurantManager.Restaurant.RestaurantId;
             var request = _dbContext.Request.Include(p => p.User).Include(p => p.RequestItem)
+                .ThenInclude(p => p.VirtualItem)
                 .Where(p => p.RestaurantId == restaurantId)
                 .SingleOrDefault(p => p.RequestId == id);
             if (request == null) return SupplyResponse.NotFound("request", id + "");
