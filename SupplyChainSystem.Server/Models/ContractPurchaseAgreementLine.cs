@@ -10,11 +10,11 @@ namespace SupplyChainSystem.Server.Models
 {
     public class ContractPurchaseAgreementLine
     {
-        [Key] [ForeignKey("Agreement")] public int AgreementId { get; set; }
+        [ForeignKey("Agreement")] public int AgreementId { get; set; }
 
-        public int ItemId { get; set; }
+        [JsonIgnore] public int ItemId { get; set; }
 
-        [JsonIgnore] public Item Item { get; set; }
+        public Item Item { get; set; }
 
         [JsonIgnore] public Agreement Agreement { get; set; }
     }

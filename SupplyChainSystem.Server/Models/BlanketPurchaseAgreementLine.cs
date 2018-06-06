@@ -10,14 +10,14 @@ namespace SupplyChainSystem.Server.Models
 {
     public class BlanketPurchaseAgreementLine
     {
-        [Key] [ForeignKey("Agreement")] public int AgreementId { get; set; }
-        [Required] public int ItemId { get; set; }
+        [ForeignKey("Agreement")] public int AgreementId { get; set; }
+        [JsonIgnore] public int ItemId { get; set; }
         [Required] public double PromisedQuantity { get; set; }
         [Required] public double MinimumQuantity { get; set; }
         [Required] public string Unit { get; set; }
         [Required] public double Price { get; set; }
 
-        [JsonIgnore] public Item Item { get; set; }
+        public Item Item { get; set; }
         [JsonIgnore] public Agreement Agreement { get; set; }
     }
 }

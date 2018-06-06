@@ -50,6 +50,7 @@ namespace SupplyChainSystem.Server.Controllers
                 return SupplyResponse.RequiredFieldEmpty();
             if (_dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId == item.VirtualItemId) != null)
                 return SupplyResponse.DuplicateEntry("item", item.VirtualItemId);
+            item.Id = 0;
             _dbContext.VirtualItem.Add(item);
             _dbContext.SaveChanges();
             return Get(item.VirtualItemId);
@@ -72,9 +73,9 @@ namespace SupplyChainSystem.Server.Controllers
                 return SupplyResponse.DuplicateEntry("virtual item", item.VirtualItemId);
 
             item.Id = entity.Id;
-
-            var entry = _dbContext.Entry(entity);
-            entry.CurrentValues.SetValues(item);
+            var entry= _dbContext.Attach(item);
+            //var entry = _dbContext.Entry(entity);
+            //entry.CurrentValues.SetValues(item);
             entry.State = EntityState.Modified;
             _dbContext.SaveChanges();
             return Get(item.VirtualItemId);

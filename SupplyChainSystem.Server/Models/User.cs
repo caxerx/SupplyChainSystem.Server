@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Newtonsoft.Json;
 
 namespace SupplyChainSystem.Server.Models
 {
@@ -23,13 +24,12 @@ namespace SupplyChainSystem.Server.Models
 
         [Required] public UserType UserType { get; set; }
 
-        [MaxLength(20)]
-        [Required] public string UserName { get; set; }
+        [MaxLength(20)] [Required] public string UserName { get; set; }
 
         [Required] public string Name { get; set; }
 
-        [Required] public string Password { get; set; }
+        [Required] [JsonIgnore] public string Password { get; set; }
 
-        public RestaurantManager RestaurantManager { get; set; }
+        [JsonIgnore] public RestaurantManager RestaurantManager { get; set; }
     }
 }

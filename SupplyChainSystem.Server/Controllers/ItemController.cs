@@ -53,6 +53,7 @@ namespace SupplyChainSystem.Server.Controllers
                 return SupplyResponse.DuplicateEntry("item", item.SupplierItemId);
             if (_dbContext.Supplier.SingleOrDefault(p => p.SupplierId == item.SupplierId) == null)
                 return SupplyResponse.NotFound("supplier", item.SupplierId + "");
+            item.Id = 0;
             _dbContext.Item.Add(item);
             _dbContext.SaveChanges();
             return Get(item.SupplierItemId);
@@ -70,6 +71,7 @@ namespace SupplyChainSystem.Server.Controllers
             if (_dbContext.Supplier.SingleOrDefault(p => p.SupplierId == item.SupplierId) == null)
                 return SupplyResponse.NotFound("supplier", item.SupplierId + "");
 
+
             var entity = _dbContext.Item.SingleOrDefault(p => p.SupplierItemId == id);
             if (entity == null) return Post(item);
 
@@ -77,10 +79,10 @@ namespace SupplyChainSystem.Server.Controllers
                 _dbContext.Item.SingleOrDefault(p => p.SupplierItemId == item.SupplierItemId) != null)
                 return SupplyResponse.DuplicateEntry("item", item.SupplierItemId);
 
-            item.Id = entity.Id;
 
-            var entry = _dbContext.Entry(entity);
-            entry.CurrentValues.SetValues(item);
+            var entry = _dbContext.Attach(item);
+            //var entry = _dbContext.Entry(entity);
+            //entry.CurrentValues.SetValues(item);
             entry.State = EntityState.Modified;
             _dbContext.SaveChanges();
             return Get(item.SupplierItemId);

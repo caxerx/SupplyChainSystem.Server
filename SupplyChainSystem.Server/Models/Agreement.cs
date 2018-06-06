@@ -25,5 +25,14 @@ namespace SupplyChainSystem.Server.Models
         [Required] [ForeignKey("User")] public int CreateBy { get; set; }
         [JsonIgnore] public User User { get; set; }
         [JsonIgnore] public Supplier Supplier { get; set; }
+
+        public BlanketPurchaseAgreementDetails BlanketPurchaseAgreementDetails { get; set; }
+        public ICollection<BlanketPurchaseAgreementLine> BlanketPurchaseAgreementLines { get; set; }
+
+        public ContractPurchaseAgreementDetails ContractPurchaseAgreementDetails { get; set; }
+        public ICollection<ContractPurchaseAgreementLine> ContractPurchaseAgreementLines { get; set; }
+
+        public PlannedPurchaseAgreementDetails PlannedPurchaseAgreementDetails { get; set; }
+        public ICollection<PlannedPurchaseAgreementLine> PlannedPurchaseAgreementLines { get; set; }
     }
 }

@@ -35,8 +35,9 @@ namespace SupplyChainSystem.Server.Controllers
 
             if (user != null)
             {
-                var tokenString = BuildToken(user);
-                response = SupplyResponse.Ok(new {token = tokenString, userType = user.UserType});
+                var expiry = DateTime.Now.AddDays(1);
+                var tokenString = BuildToken(expiry, user);
+                response = SupplyResponse.Ok(new {token = tokenString, userType = user.UserType, expiry, user});
             }
 
             return response;
@@ -50,7 +51,7 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
 
-        private string BuildToken(User user)
+        private string BuildToken(DateTime expiry, User user)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -61,7 +62,7 @@ namespace SupplyChainSystem.Server.Controllers
             };
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],
                 _config["Jwt:Issuer"],
-                expires: DateTime.Now.AddDays(1),
+                expires: expiry,
                 signingCredentials: creds,
                 claims: claims
             );

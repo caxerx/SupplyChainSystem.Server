@@ -33,7 +33,8 @@ namespace SupplyChainSystem.Server.Controllers
             if (restaurantManager == null)
                 return SupplyResponse.Fail("Unauthorize", "Your are not the restaurant manager.");
             var restaurantId = restaurantManager.Restaurant.RestaurantId;
-            var requests = _dbContext.Request.Include(p => p.RequestItem).Where(p => p.RestaurantId == restaurantId)
+            var requests = _dbContext.Request.Include(p => p.User).Include(p => p.RequestItem)
+                .Where(p => p.RestaurantId == restaurantId)
                 .Select(p => p);
             return SupplyResponse.Ok(requests);
         }
@@ -51,7 +52,8 @@ namespace SupplyChainSystem.Server.Controllers
             if (restaurantManager == null)
                 return SupplyResponse.Fail("Unauthorize", "Your are not the restaurant manager.");
             var restaurantId = restaurantManager.Restaurant.RestaurantId;
-            var requests = _dbContext.Request.Include(p => p.RequestItem).Where(p => p.RestaurantId == restaurantId)
+            var requests = _dbContext.Request.Include(p => p.User).Include(p => p.RequestItem)
+                .Where(p => p.RestaurantId == restaurantId)
                 .SingleOrDefault(p => p.RequestId == id);
             if (requests == null) return SupplyResponse.NotFound("request", id + "");
             return SupplyResponse.Ok(requests);
@@ -59,7 +61,7 @@ namespace SupplyChainSystem.Server.Controllers
 
         [HttpPost]
         [Authorize]
-        public SupplyResponse Post([FromBody] ICollection<ItemRequest> requestRequest)
+        public SupplyResponse Post([FromBody] ICollection<ItemRequest> itemRequest)
         {
             var currentUser = HttpContext.User;
             var dbUser =
@@ -73,7 +75,7 @@ namespace SupplyChainSystem.Server.Controllers
             var itemMap = new Dictionary<int, int>();
             var itemList = new List<RequestItem>();
 
-            foreach (var item in requestRequest)
+            foreach (var item in itemRequest)
             {
                 var virtualItem =
                     _dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId.Equals(item.VirtualItemId));

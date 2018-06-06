@@ -39,7 +39,10 @@ namespace SupplyChainSystem.Server
             modelBuilder.Entity<VirtualIdMap>().HasKey(sc => new {sc.ItemId, sc.VirtualItemId});
             modelBuilder.Entity<CategoryItem>().HasKey(sc => new {sc.VirtualItemId, sc.CategoryId});
             modelBuilder.Entity<RequestItem>().HasKey(sc => new {sc.RequestId, sc.VirtualItemId});
-            modelBuilder.Entity<StockItem>().HasKey(sc => new {sc.StockId, sc.VirtualItemId});
+            modelBuilder.Entity<StockItem>().HasKey(sc => new { sc.StockId, sc.VirtualItemId });
+            modelBuilder.Entity<BlanketPurchaseAgreementLine>().HasKey(sc => new { sc.AgreementId, sc.ItemId });
+            modelBuilder.Entity<ContractPurchaseAgreementLine>().HasKey(sc => new { sc.AgreementId, sc.ItemId });
+            modelBuilder.Entity<PlannedPurchaseAgreementLine>().HasKey(sc => new { sc.AgreementId, sc.ItemId });
         }
     }
 }
