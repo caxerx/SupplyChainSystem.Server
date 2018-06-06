@@ -142,7 +142,11 @@ namespace SupplyChainSystem.Server.Controllers
                     _dbContext.SaveChanges();
                     entry.State = EntityState.Detached;
                 }
+
+                Get(agreementId);
             }
+
+
             else if (agreement.AgreementType == 1) //CPA
             {
                 ICollection<string> items = new HashSet<string>();
@@ -204,16 +208,21 @@ namespace SupplyChainSystem.Server.Controllers
                     _dbContext.SaveChanges();
                     entry.State = EntityState.Detached;
                 }
+
+                return Get(agreementId);
             }
 
-            return null;
+            return SupplyResponse.NotFound("Agreement Type", agreement.AgreementType + "");
         }
 
 
         [HttpDelete("{id}")]
         [Authorize]
-        public SupplyResponse Delete(int id, [FromBody] IdRequest idRequest)
+        public SupplyResponse Delete(int id)
         {
+            var agreement = _dbContext.Agreement.SingleOrDefault(p => p.AgreementId == id);
+            if (agreement == null) return SupplyResponse.NotFound("Agreement", id + "");
+            _dbContext.Remove(agreement);
             return SupplyResponse.Ok();
         }
     }

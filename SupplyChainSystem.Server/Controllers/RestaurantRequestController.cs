@@ -128,11 +128,67 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
 
-        [HttpDelete("{id}")]
+        [HttpPut("{id}")]
         [Authorize]
-        public SupplyResponse Delete(int id, [FromBody] IdRequest idRequest)
+        public SupplyResponse Put(int id, [FromBody] ICollection<ItemRequest> itemRequest)
         {
-            return SupplyResponse.Fail("Unimplemented", "I still working hard on this");
+            var currentUser = HttpContext.User;
+            var dbUser =
+                _dbContext.User.Include(p => p.RestaurantManager).ThenInclude(p => p.Restaurant)
+                    .SingleOrDefault(p => currentUser.FindFirst(ClaimTypes.Name).Value.Equals(p.UserName));
+            if (dbUser == null) return SupplyResponse.Fail("Unauthorize", "Your are not the user in the system.");
+            var restaurantManager = dbUser.RestaurantManager;
+            if (restaurantManager == null)
+                return SupplyResponse.Fail("Unauthorize", "Your are not the restaurant manager.");
+
+            var request = _dbContext.Request.Include(p => p.RequestItem).SingleOrDefault(p => p.RequestId == id);
+            if (request == null)
+                return SupplyResponse.NotFound("Request", id + "");
+
+            if (dbUser.UserId != request.RequestCreator)
+                return SupplyResponse.BadRequest("You are not the creator of the request");
+
+            ICollection<RequestItem> requestItems;
+            if ((requestItems = request.RequestItem) != null)
+            {
+                foreach (var items in requestItems)
+                {
+                    _dbContext.Remove(items);
+                }
+            }
+
+            _dbContext.SaveChanges();
+
+            var itemMap = new Dictionary<int, int>();
+
+            foreach (var item in itemRequest)
+            {
+                var virtualItem =
+                    _dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId.Equals(item.VirtualItemId));
+                if (virtualItem == null) return SupplyResponse.NotFound("virtual item", item.VirtualItemId);
+                if (itemMap.ContainsKey(virtualItem.Id))
+                {
+                    itemMap[virtualItem.Id] += item.Quantity;
+                }
+                else
+                {
+                    itemMap.Add(virtualItem.Id, item.Quantity);
+                }
+            }
+
+            foreach (var (itemId, qty) in itemMap)
+            {
+                var requestItem = new RequestItem
+                {
+                    RequestId = request.RequestId,
+                    VirtualItemId = itemId,
+                    Quantity = qty
+                };
+                _dbContext.RequestItem.Add(requestItem);
+                _dbContext.SaveChanges();
+            }
+            
+            return Get(request.RequestId);
         }
     }
 }

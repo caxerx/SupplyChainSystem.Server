@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -48,39 +49,47 @@ namespace SupplyChainSystem.Server.Controllers
         //[HttpPost, Authorize(Roles = "Admin")]
         [HttpPost]
         [Authorize]
-        public SupplyResponse Post([FromBody] User user)
+        public SupplyResponse Post([FromBody] UserRequest user)
         {
+            Console.WriteLine(string.IsNullOrWhiteSpace(user.Name));
+            Console.WriteLine(string.IsNullOrWhiteSpace(user.UserName));
+            Console.WriteLine(string.IsNullOrWhiteSpace(user.Password));
             if (string.IsNullOrWhiteSpace(user.Name) || string.IsNullOrWhiteSpace(user.UserName) ||
-                string.IsNullOrWhiteSpace(user.Password))
-                return SupplyResponse.RequiredFieldEmpty();
+                string.IsNullOrWhiteSpace(user.Password)) return SupplyResponse.RequiredFieldEmpty();
             var entity = _dbContext.User.AsNoTracking().SingleOrDefault(p => p.UserName == user.UserName);
             if (entity != null)
                 return SupplyResponse.DuplicateEntry("user", user.UserName);
-            user.UserId = 0;
-            user.Password = HashUtilities.HashPassword(user.Password);
-            _dbContext.User.Add(user);
+            var dbUser = new User
+            {
+                Name = user.Name,
+                UserName = user.UserName,
+                Password = HashUtilities.HashPassword(user.Password),
+                UserType = user.UserType
+            };
+            _dbContext.User.Add(dbUser);
             _dbContext.SaveChanges();
-            return Get(user.UserId);
+            return Get(dbUser.UserId);
         }
 
         // PUT api/user/5
         [HttpPut("{id}")]
         [Authorize]
-        public SupplyResponse Put(int id, [FromBody] User user)
+        public SupplyResponse Put(int id, [FromBody] UserRequest user)
         {
-            var entity = _dbContext.User.AsNoTracking().SingleOrDefault(p => p.UserId == id);
-            if (entity == null) return SupplyResponse.NotFound("user", id + "");
+            var dbUser = _dbContext.User.SingleOrDefault(p => p.UserId == id);
+            if (dbUser == null) return SupplyResponse.NotFound("user", id + "");
             if (string.IsNullOrWhiteSpace(user.UserName))
                 return SupplyResponse.BadRequest("Required Field is Empty");
 
-            user.UserId = id;
-            var oldPw = entity.Password;
+            dbUser.Name = user.Name;
+            dbUser.UserName = user.UserName;
+            dbUser.UserType = user.UserType;
+
+            var oldPw = dbUser.Password;
             user.Password = string.IsNullOrWhiteSpace(user.Password)
                 ? oldPw
                 : HashUtilities.HashPassword(user.Password);
 
-            _dbContext.Attach(user);
-            _dbContext.Entry(user).State = EntityState.Modified;
             _dbContext.SaveChanges();
             return Get(id);
         }

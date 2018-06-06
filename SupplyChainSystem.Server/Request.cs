@@ -27,4 +27,15 @@ namespace SupplyChainSystem.Server
         public string VirtualItemId { get; set; }
         public int Quantity { get; set; }
     }
+
+    public class UserRequest
+    {
+        public UserType UserType { get; set; }
+
+        public string UserName { get; set; }
+
+        public string Name { get; set; }
+
+        public string Password { get; set; }
+    }
 }
