@@ -143,10 +143,8 @@ namespace SupplyChainSystem.Server.Controllers
                     entry.State = EntityState.Detached;
                 }
 
-                Get(agreementId);
+                return Get(agreementId);
             }
-
-
             else if (agreement.AgreementType == 1) //CPA
             {
                 ICollection<string> items = new HashSet<string>();
@@ -211,7 +209,6 @@ namespace SupplyChainSystem.Server.Controllers
 
                 return Get(agreementId);
             }
-
             return SupplyResponse.NotFound("Agreement Type", agreement.AgreementType + "");
         }
 

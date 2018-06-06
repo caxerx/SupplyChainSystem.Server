@@ -20,5 +20,6 @@ namespace SupplyChainSystem.Server.Models
         public int Quantity { get; set; }
 
         [NotMapped] public string VirtualItemName { get; set; }
+        [NotMapped] public string RequestVirtualItemId { get; set; }
     }
 }

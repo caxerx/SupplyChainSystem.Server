@@ -44,6 +44,7 @@ namespace SupplyChainSystem.Server.Controllers
                 foreach (var requestItem in request.RequestItem)
                 {
                     requestItem.VirtualItemName = requestItem.VirtualItem.VirtualItemName;
+                    requestItem.RequestVirtualItemId = requestItem.VirtualItem.VirtualItemId;
                 }
             }
 
@@ -72,6 +73,7 @@ namespace SupplyChainSystem.Server.Controllers
             foreach (var requestItem in request.RequestItem)
             {
                 requestItem.VirtualItemName = requestItem.VirtualItem.VirtualItemName;
+                requestItem.RequestVirtualItemId= requestItem.VirtualItem.VirtualItemId;
             }
 
             return SupplyResponse.Ok(request);
