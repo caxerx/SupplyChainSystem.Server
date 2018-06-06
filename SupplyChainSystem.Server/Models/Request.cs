@@ -22,6 +22,8 @@ namespace SupplyChainSystem.Server.Models
         public User User { get; set; }
 
         public int RequestStatus { get; set; }
+
+        public DateTime CreateTime { get; set; }
         public ICollection<RequestItem> RequestItem { get; set; }
     }
 }

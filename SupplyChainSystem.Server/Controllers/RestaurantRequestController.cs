@@ -106,7 +106,8 @@ namespace SupplyChainSystem.Server.Controllers
             var request = new Models.Request
             {
                 RestaurantId = restaurantId,
-                RequestCreator = userId
+                RequestCreator = userId,
+                CreateTime = DateTime.Now
             };
 
             _dbContext.Request.Add(request);
@@ -187,7 +188,7 @@ namespace SupplyChainSystem.Server.Controllers
                 _dbContext.RequestItem.Add(requestItem);
                 _dbContext.SaveChanges();
             }
-            
+
             return Get(request.RequestId);
         }
     }

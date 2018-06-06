@@ -45,12 +45,18 @@ namespace SupplyChainSystem.Server.Controllers
         public SupplyResponse AddRestaurantManager(int id, [FromBody] IntIdRequest idRequest)
         {
             if (id == 0 || idRequest.Id == 0) return SupplyResponse.RequiredFieldEmpty();
+
             var restaurant = _dbContext.Restaurant.SingleOrDefault(p => id == p.RestaurantId);
+
             var user = _dbContext.User.SingleOrDefault(p => p.UserId == idRequest.Id);
+
             if (restaurant == null) return SupplyResponse.NotFound("restaurant", id + "");
+
             if (user == null) return SupplyResponse.NotFound("user", idRequest.Id + "");
+
             var restaurantManager = _dbContext.RestaurantManager.Include(p => p.Restaurant)
                 .SingleOrDefault(p => p.UserId == idRequest.Id);
+
             if (restaurantManager != null)
                 return SupplyResponse.Fail("Already a Manager",
                     "This user is already a manager of restaurant: " + restaurantManager.Restaurant.RestaurantName);
