@@ -18,5 +18,7 @@ namespace SupplyChainSystem.Server.Models
         [JsonIgnore] public VirtualItem VirtualItem { get; set; }
 
         public int Quantity { get; set; }
+
+        [NotMapped] public string VirtualItemName { get; set; }
     }
 }
