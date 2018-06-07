@@ -17,6 +17,12 @@ namespace SupplyChainSystem.Server
         public int Id { get; set; }
     }
 
+
+    public class RequestStatusRequest
+    {
+        public RequestStatus Status { get; set; }
+    }
+
     public class NameRequest
     {
         public string Name { get; set; }

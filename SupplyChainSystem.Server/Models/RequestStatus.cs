@@ -12,6 +12,7 @@ namespace SupplyChainSystem.Server.Models
         Processing,
         Ordered,
         Delivering,
-        Delivered
+        Delivered,
+        Cancelled = -1
     }
 }
