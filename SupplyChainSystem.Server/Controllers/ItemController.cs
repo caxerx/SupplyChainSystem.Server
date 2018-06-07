@@ -72,13 +72,14 @@ namespace SupplyChainSystem.Server.Controllers
                 return SupplyResponse.NotFound("supplier", item.SupplierId + "");
 
 
-            var entity = _dbContext.Item.SingleOrDefault(p => p.SupplierItemId == id);
+            var entity = _dbContext.Item.AsNoTracking().SingleOrDefault(p => p.SupplierItemId == id);
             if (entity == null) return Post(item);
 
             if (entity.SupplierItemId != item.SupplierItemId &&
                 _dbContext.Item.SingleOrDefault(p => p.SupplierItemId == item.SupplierItemId) != null)
                 return SupplyResponse.DuplicateEntry("item", item.SupplierItemId);
 
+            item.Id = entity.Id;
 
             var entry = _dbContext.Attach(item);
             //var entry = _dbContext.Entry(entity);
