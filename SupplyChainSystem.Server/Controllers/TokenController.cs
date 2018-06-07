@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SupplyChainSystem.Server.Models;
@@ -37,7 +38,27 @@ namespace SupplyChainSystem.Server.Controllers
             {
                 var expiry = DateTime.Now.AddDays(1);
                 var tokenString = BuildToken(expiry, user);
-                response = SupplyResponse.Ok(new {token = tokenString, userType = user.UserType, expiry, user});
+
+                var restaurantManager = user.RestaurantManager;
+                dynamic workplace = null;
+                if (restaurantManager != null)
+                {
+                    workplace = new
+                    {
+                        restaurantId = restaurantManager.RestaurantId,
+                        stockId = restaurantManager.Restaurant.StockId
+                    };
+                }
+
+
+                response = SupplyResponse.Ok(new
+                {
+                    token = tokenString,
+                    userType = user.UserType,
+                    expiry,
+                    user,
+                    workplace
+                });
             }
 
             return response;
@@ -50,14 +71,35 @@ namespace SupplyChainSystem.Server.Controllers
             var currentUser = HttpContext.User;
 
             var dbUser =
-                _dbContext.User.SingleOrDefault(p => currentUser.FindFirst(ClaimTypes.Name).Value.Equals(p.UserName));
+                _dbContext.User.Include(p => p.RestaurantManager).ThenInclude(p => p.Restaurant)
+                    .SingleOrDefault(p => currentUser.FindFirst(ClaimTypes.Name).Value.Equals(p.UserName));
 
             if (dbUser == null) return SupplyResponse.Fail("Unauthorize", "Your are not the user in the system.");
 
 
             var expiry = DateTime.Now.AddDays(1);
             var tokenString = BuildToken(expiry, dbUser);
-            var response = SupplyResponse.Ok(new {token = tokenString, userType = dbUser.UserType, expiry, dbUser});
+            var restaurantManager = dbUser.RestaurantManager;
+            dynamic workplace = null;
+            if (restaurantManager != null)
+            {
+                workplace = new
+                {
+                    restaurantId = restaurantManager.RestaurantId,
+                    stockId = restaurantManager.Restaurant.StockId
+                };
+            }
+
+            var resp = new
+            {
+                token = tokenString,
+                userType = dbUser.UserType,
+                expiry,
+                dbUser,
+                workplace
+            };
+
+            var response = SupplyResponse.Ok(resp);
 
 
             return response;
@@ -87,7 +129,7 @@ namespace SupplyChainSystem.Server.Controllers
         private User Authenticate(LoginRequest login)
         {
             var user =
-                _dbContext.User.SingleOrDefault(u =>
+                _dbContext.User.Include(p => p.RestaurantManager).ThenInclude(p => p.Restaurant).SingleOrDefault(u =>
                     u.UserName == login.Username && u.Password == HashUtilities.HashPassword(login.Password));
 
             return user;
