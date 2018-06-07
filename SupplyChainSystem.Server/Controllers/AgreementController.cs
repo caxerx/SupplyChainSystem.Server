@@ -71,6 +71,7 @@ namespace SupplyChainSystem.Server.Controllers
             //BPA
             if (agreement.AgreementType == AgreementType.Blanket)
             {
+                //Get data from request
                 ICollection<QuantityItems> items = new List<QuantityItems>();
                 BlanketPurchaseAgreementDetails details;
                 try
@@ -88,6 +89,8 @@ namespace SupplyChainSystem.Server.Controllers
                     return SupplyResponse.BadRequest("Request Format Fail");
                 }
 
+
+                //Verfiy&Process request object
                 var dbLine = new Dictionary<string, BlanketPurchaseAgreementLine>();
 
                 foreach (var item in items)
@@ -117,6 +120,8 @@ namespace SupplyChainSystem.Server.Controllers
                         Unit = item.Unit
                     };
                 }
+
+                //Create Agreement Object
 
                 var dbAgreement = new Agreement
                 {
@@ -339,6 +344,7 @@ namespace SupplyChainSystem.Server.Controllers
 
                     details = agreement.Details.ToObject<BlanketPurchaseAgreementDetails>();
                 }
+
                 catch (Exception e)
                 {
                     Console.WriteLine(e.ToString());
@@ -408,6 +414,7 @@ namespace SupplyChainSystem.Server.Controllers
                 _dbContext.BlanketPurchaseAgreementDetails.Add(details);
                 _dbContext.SaveChanges();
 
+
                 foreach (var line in dbLine.Values)
                 {
                     line.AgreementId = _dbAgreement.AgreementId;
@@ -453,6 +460,26 @@ namespace SupplyChainSystem.Server.Controllers
                     });
                 }
 
+
+                //Remove Details
+                var _dbDetails = _dbContext.ContractPurchaseAgreementDetails.AsNoTracking()
+                    .SingleOrDefault(p => p.AgreementId == _dbAgreement.AgreementId);
+                _dbContext.Remove(_dbDetails);
+
+
+                //Remove Lines
+                var lines = _dbContext.ContractPurchaseAgreementLine.Select(p => p)
+                    .Where(p => p.AgreementId == _dbAgreement.AgreementId);
+
+                foreach (var line in lines)
+                {
+                    _dbContext.Remove(line);
+                }
+
+                _dbContext.SaveChanges();
+
+
+                //Create a new replacement agreement
                 var dbAgreement = new Agreement
                 {
                     AgreementType = AgreementType.Contract,
@@ -463,24 +490,27 @@ namespace SupplyChainSystem.Server.Controllers
                     CreateBy = _dbAgreement.CreateBy,
                     AgreementId = _dbAgreement.AgreementId
                 };
-                _dbContext.Attach(dbAgreement);
-                _dbContext.SaveChanges();
-                var agreementId = dbAgreement.AgreementId;
-                _dbContext.Entry(dbAgreement).State = EntityState.Detached;
 
-                details.AgreementId = agreementId;
+                //Update Agreement
+                _dbContext.Attach(dbAgreement).State = EntityState.Modified;
+
+
+                //Add back new details
+                details.AgreementId = _dbAgreement.AgreementId;
                 _dbContext.ContractPurchaseAgreementDetails.Add(details);
                 _dbContext.SaveChanges();
 
+                //Add back lines
                 foreach (var line in dbLine)
                 {
-                    line.AgreementId = agreementId;
+                    line.AgreementId = _dbAgreement.AgreementId;
                     var entry = _dbContext.ContractPurchaseAgreementLine.Add(line);
-                    _dbContext.SaveChanges();
                     entry.State = EntityState.Detached;
                 }
 
-                return Get(agreementId);
+                _dbContext.SaveChanges();
+
+                return Get(_dbAgreement.AgreementId);
             }
             else if (agreement.AgreementType == AgreementType.Planned)
             {
@@ -530,6 +560,23 @@ namespace SupplyChainSystem.Server.Controllers
                     };
                 }
 
+                //Remove Details
+                var _dbDetails = _dbContext.PlannedPurchaseAgreementDetails.AsNoTracking()
+                    .SingleOrDefault(p => p.AgreementId == _dbAgreement.AgreementId);
+                _dbContext.Remove(_dbDetails);
+
+
+                //Remove Lines
+                var lines = _dbContext.PlannedPurchaseAgreementLine.Select(p => p)
+                    .Where(p => p.AgreementId == _dbAgreement.AgreementId);
+
+                foreach (var line in lines)
+                {
+                    _dbContext.Remove(line);
+                }
+
+                _dbContext.SaveChanges();
+
                 var dbAgreement = new Agreement
                 {
                     AgreementType = AgreementType.Planned,
@@ -537,26 +584,25 @@ namespace SupplyChainSystem.Server.Controllers
                     StartDate = agreement.StartDate,
                     ExpiryDate = agreement.ExpiryDate,
                     SupplierId = agreement.SupplierId,
-                    CreateBy = dbUser.UserId
+                    CreateBy = dbUser.UserId,
+                    AgreementId = _dbAgreement.AgreementId
                 };
-                _dbContext.Agreement.Add(dbAgreement);
+                _dbContext.Attach(dbAgreement).State = EntityState.Modified;
                 _dbContext.SaveChanges();
-                var agreementId = dbAgreement.AgreementId;
-                _dbContext.Entry(dbAgreement).State = EntityState.Detached;
 
-                details.AgreementId = agreementId;
+                details.AgreementId = _dbAgreement.AgreementId;
                 _dbContext.PlannedPurchaseAgreementDetails.Add(details);
                 _dbContext.SaveChanges();
 
                 foreach (var line in dbLine.Values)
                 {
-                    line.AgreementId = agreementId;
+                    line.AgreementId = _dbAgreement.AgreementId;
                     var entry = _dbContext.PlannedPurchaseAgreementLine.Add(line);
-                    _dbContext.SaveChanges();
                     entry.State = EntityState.Detached;
                 }
+                _dbContext.SaveChanges();
 
-                return Get(agreementId);
+                return Get(dbAgreement.AgreementId);
             }
 
             return SupplyResponse.NotFound("Agreement Type", agreement.AgreementType + "");
