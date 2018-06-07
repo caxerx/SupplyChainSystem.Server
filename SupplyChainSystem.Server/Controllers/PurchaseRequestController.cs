@@ -24,7 +24,20 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Get()
         {
-            var requests = _dbContext.Request.Include(p => p.User).Include(p => p.RequestItem).Select(p => p);
+            var requests = _dbContext.Request.Include(p => p.User).Include(p => p.RequestItem)
+                .ThenInclude(p => p.VirtualItem)
+                .Select(p => p);
+
+
+            foreach (var request in requests)
+            {
+                foreach (var requestItem in request.RequestItem)
+                {
+                    requestItem.VirtualItemName = requestItem.VirtualItem.VirtualItemName;
+                    requestItem.RequestVirtualItemId = requestItem.VirtualItem.VirtualItemId;
+                }
+            }
+
             return SupplyResponse.Ok(requests);
         }
 
@@ -32,23 +45,21 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Get(int id)
         {
-            var requests = _dbContext.Request.Include(p => p.User).Include(p => p.RequestItem)
+            var request = _dbContext.Request.Include(p => p.User).Include(p => p.RequestItem)
+                .ThenInclude(p => p.VirtualItem)
                 .SingleOrDefault(p => p.RequestId == id);
-            if (requests == null) return SupplyResponse.NotFound("request", id + "");
-            return SupplyResponse.Ok(requests);
+            if (request == null) return SupplyResponse.NotFound("request", id + "");
+
+            foreach (var requestItem in request.RequestItem)
+            {
+                requestItem.VirtualItemName = requestItem.VirtualItem.VirtualItemName;
+                requestItem.RequestVirtualItemId= requestItem.VirtualItem.VirtualItemId;
+            }
+
+            return SupplyResponse.Ok(request);
         }
 
-
-        [HttpDelete("{id}")]
-        [Authorize]
-        public SupplyResponse Delete(int id)
-        {
-            var request = _dbContext.Request.SingleOrDefault(p => p.RequestId == id);
-            if (request == null) SupplyResponse.NotFound("Request", id + "");
-            _dbContext.Remove(request);
-            return SupplyResponse.Ok();
-        }
-
+    
 
         [HttpPut("{id}")]
         [Authorize]
