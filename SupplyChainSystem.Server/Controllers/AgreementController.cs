@@ -117,7 +117,7 @@ namespace SupplyChainSystem.Server.Controllers
                         MinimumQuantity = item.MinimumQuantity,
                         PromisedQuantity = item.PromisedQuantity,
                         Price = item.Price,
-                        Unit = item.Unit
+                        Unit = item.Unit,
                     };
                 }
 
@@ -130,7 +130,8 @@ namespace SupplyChainSystem.Server.Controllers
                     StartDate = agreement.StartDate,
                     ExpiryDate = agreement.ExpiryDate,
                     SupplierId = agreement.SupplierId,
-                    CreateBy = dbUser.UserId
+                    CreateBy = dbUser.UserId,
+                    TermsAndCondition = agreement.TermsAndCondition
                 };
                 _dbContext.Agreement.Add(dbAgreement);
                 _dbContext.SaveChanges();
@@ -193,7 +194,8 @@ namespace SupplyChainSystem.Server.Controllers
                     StartDate = agreement.StartDate,
                     ExpiryDate = agreement.ExpiryDate,
                     SupplierId = agreement.SupplierId,
-                    CreateBy = dbUser.UserId
+                    CreateBy = dbUser.UserId,
+                    TermsAndCondition = agreement.TermsAndCondition
                 };
 
                 _dbContext.Agreement.Add(dbAgreement);
@@ -270,7 +272,8 @@ namespace SupplyChainSystem.Server.Controllers
                     StartDate = agreement.StartDate,
                     ExpiryDate = agreement.ExpiryDate,
                     SupplierId = agreement.SupplierId,
-                    CreateBy = dbUser.UserId
+                    CreateBy = dbUser.UserId,
+                    TermsAndCondition = agreement.TermsAndCondition
                 };
                 _dbContext.Agreement.Add(dbAgreement);
                 _dbContext.SaveChanges();
@@ -377,7 +380,7 @@ namespace SupplyChainSystem.Server.Controllers
                         MinimumQuantity = item.MinimumQuantity,
                         PromisedQuantity = item.PromisedQuantity,
                         Price = item.Price,
-                        Unit = item.Unit
+                        Unit = item.Unit,
                     };
                 }
 
@@ -403,7 +406,8 @@ namespace SupplyChainSystem.Server.Controllers
                     StartDate = agreement.StartDate,
                     ExpiryDate = agreement.ExpiryDate,
                     SupplierId = agreement.SupplierId,
-                    CreateBy = _dbAgreement.CreateBy
+                    CreateBy = _dbAgreement.CreateBy,
+                    TermsAndCondition = agreement.TermsAndCondition
                 };
                 _dbContext.Agreement.Attach(dbAgreement);
                 _dbContext.SaveChanges();
@@ -488,7 +492,8 @@ namespace SupplyChainSystem.Server.Controllers
                     ExpiryDate = agreement.ExpiryDate,
                     SupplierId = agreement.SupplierId,
                     CreateBy = _dbAgreement.CreateBy,
-                    AgreementId = _dbAgreement.AgreementId
+                    AgreementId = _dbAgreement.AgreementId,
+                    TermsAndCondition = agreement.TermsAndCondition
                 };
 
                 //Update Agreement
@@ -585,7 +590,8 @@ namespace SupplyChainSystem.Server.Controllers
                     ExpiryDate = agreement.ExpiryDate,
                     SupplierId = agreement.SupplierId,
                     CreateBy = dbUser.UserId,
-                    AgreementId = _dbAgreement.AgreementId
+                    AgreementId = _dbAgreement.AgreementId,
+                    TermsAndCondition = agreement.TermsAndCondition
                 };
                 _dbContext.Attach(dbAgreement).State = EntityState.Modified;
                 _dbContext.SaveChanges();
@@ -600,6 +606,7 @@ namespace SupplyChainSystem.Server.Controllers
                     var entry = _dbContext.PlannedPurchaseAgreementLine.Add(line);
                     entry.State = EntityState.Detached;
                 }
+
                 _dbContext.SaveChanges();
 
                 return Get(dbAgreement.AgreementId);

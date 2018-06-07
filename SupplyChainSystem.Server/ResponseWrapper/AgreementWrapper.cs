@@ -14,6 +14,7 @@ namespace SupplyChainSystem.Server.ResponseWrapper
         public DateTime ExpiryDate { get; set; }
         public int SupplierId { get; set; }
         public dynamic Details { get; set; }
+        public string TermsAndCondition { get; set; }
         public ICollection<dynamic> Items { get; set; }
     }
 }
