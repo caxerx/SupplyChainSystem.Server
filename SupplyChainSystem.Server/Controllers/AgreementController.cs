@@ -94,21 +94,21 @@ namespace SupplyChainSystem.Server.Controllers
                 {
                     if (item.MinimumQuantity <= 0 && item.PromisedQuantity <= 0)
                     {
-                        return SupplyResponse.BadRequest($"Item {item.ItemId} has a zero or negative quantity");
+                        return SupplyResponse.BadRequest($"Item {item.SupplierItemId} has a zero or negative quantity");
                     }
 
-                    var dbItem = _dbContext.Item.SingleOrDefault(p => item.ItemId == p.SupplierItemId);
+                    var dbItem = _dbContext.Item.SingleOrDefault(p => item.SupplierItemId == p.SupplierItemId);
                     if (dbItem == null)
                     {
-                        return SupplyResponse.NotFound("supplier item", item.ItemId);
+                        return SupplyResponse.NotFound("supplier item", item.SupplierItemId);
                     }
 
-                    if (dbLine.ContainsKey(item.ItemId))
+                    if (dbLine.ContainsKey(item.SupplierItemId))
                     {
-                        return SupplyResponse.DuplicateEntry("Request Item", item.ItemId);
+                        return SupplyResponse.DuplicateEntry("Request Item", item.SupplierItemId);
                     }
 
-                    dbLine[item.ItemId] = new BlanketPurchaseAgreementLine
+                    dbLine[item.SupplierItemId] = new BlanketPurchaseAgreementLine
                     {
                         ItemId = dbItem.Id,
                         MinimumQuantity = item.MinimumQuantity,
@@ -169,10 +169,10 @@ namespace SupplyChainSystem.Server.Controllers
 
                 foreach (var item in items)
                 {
-                    var dbItem = _dbContext.Item.SingleOrDefault(p => item.ItemId == p.SupplierItemId);
+                    var dbItem = _dbContext.Item.SingleOrDefault(p => item.SupplierItemId == p.SupplierItemId);
                     if (dbItem == null)
                     {
-                        return SupplyResponse.NotFound("supplier item", item.ItemId);
+                        return SupplyResponse.NotFound("supplier item", item.SupplierItemId);
                     }
 
                     dbLine.Add(new ContractPurchaseAgreementLine()
@@ -235,21 +235,21 @@ namespace SupplyChainSystem.Server.Controllers
                 {
                     if (item.Quantity <= 0)
                     {
-                        return SupplyResponse.BadRequest($"Item {item.ItemId} has a zero or negative quantity");
+                        return SupplyResponse.BadRequest($"Item {item.SupplierItemId} has a zero or negative quantity");
                     }
 
-                    var dbItem = _dbContext.Item.SingleOrDefault(p => item.ItemId == p.SupplierItemId);
+                    var dbItem = _dbContext.Item.SingleOrDefault(p => item.SupplierItemId == p.SupplierItemId);
                     if (dbItem == null)
                     {
-                        return SupplyResponse.NotFound("supplier item", item.ItemId);
+                        return SupplyResponse.NotFound("supplier item", item.SupplierItemId);
                     }
 
-                    if (dbLine.ContainsKey(item.ItemId))
+                    if (dbLine.ContainsKey(item.SupplierItemId))
                     {
-                        return SupplyResponse.DuplicateEntry("Request Item", item.ItemId);
+                        return SupplyResponse.DuplicateEntry("Request Item", item.SupplierItemId);
                     }
 
-                    dbLine[item.ItemId] = new PlannedPurchaseAgreementLine
+                    dbLine[item.SupplierItemId] = new PlannedPurchaseAgreementLine
                     {
                         ItemId = dbItem.Id,
                         Quantity = item.Quantity,

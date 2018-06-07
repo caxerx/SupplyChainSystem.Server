@@ -7,7 +7,7 @@ namespace SupplyChainSystem.Server.ResponseWrapper
 {
     public class QuantityItems
     {
-        public string ItemId { get; set; }
+        public string SupplierItemId { get; set; }
 
         //For BPA
         public int PromisedQuantity { get; set; }
