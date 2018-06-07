@@ -21,6 +21,7 @@ namespace SupplyChainSystem.Server.Models
         [Required] public DateTime StartDate { get; set; }
         [Required] public DateTime ExpiryDate { get; set; }
 
+        public string TermsAndCondition { get; set; }
 
         [Required] [ForeignKey("User")] public int CreateBy { get; set; }
         [JsonIgnore] public User User { get; set; }
