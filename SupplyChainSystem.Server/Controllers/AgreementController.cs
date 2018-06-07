@@ -64,7 +64,7 @@ namespace SupplyChainSystem.Server.Controllers
 
             if (agreement.StartDate > agreement.ExpiryDate)
             {
-                return SupplyResponse.BadRequest("Start date cannot later than Expiry Date");
+                return SupplyResponse.BadRequest("Start date cannot be later than Expiry Date");
             }
 
 
@@ -204,6 +204,82 @@ namespace SupplyChainSystem.Server.Controllers
                 {
                     line.AgreementId = agreementId;
                     var entry = _dbContext.ContractPurchaseAgreementLine.Add(line);
+                    _dbContext.SaveChanges();
+                    entry.State = EntityState.Detached;
+                }
+
+                return Get(agreementId);
+            }
+            else if (agreement.AgreementType == 2)
+            {
+                ICollection<QuantityItems> items = new List<QuantityItems>();
+                PlannedPurchaseAgreementDetails details;
+                try
+                {
+                    foreach (var item in agreement.Items)
+                    {
+                        items.Add(item.ToObject<QuantityItems>());
+                    }
+
+                    details = agreement.Details.ToObject<PlannedPurchaseAgreementDetails>();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                    return SupplyResponse.BadRequest("Request Format Fail");
+                }
+
+                var dbLine = new Dictionary<string, PlannedPurchaseAgreementLine>();
+
+                foreach (var item in items)
+                {
+                    if (item.Quantity <= 0)
+                    {
+                        return SupplyResponse.BadRequest($"Item {item.ItemId} has a zero or negative quantity");
+                    }
+
+                    var dbItem = _dbContext.Item.SingleOrDefault(p => item.ItemId == p.SupplierItemId);
+                    if (dbItem == null)
+                    {
+                        return SupplyResponse.NotFound("supplier item", item.ItemId);
+                    }
+
+                    if (dbLine.ContainsKey(item.ItemId))
+                    {
+                        return SupplyResponse.DuplicateEntry("Request Item", item.ItemId);
+                    }
+
+                    dbLine[item.ItemId] = new PlannedPurchaseAgreementLine
+                    {
+                        ItemId = dbItem.Id,
+                        Quantity = item.Quantity,
+                        Price = item.Price,
+                        Unit = item.Unit
+                    };
+                }
+
+                var dbAgreement = new Agreement
+                {
+                    AgreementType = AgreementType.Planned,
+                    Currency = agreement.Currency,
+                    StartDate = agreement.StartDate,
+                    ExpiryDate = agreement.ExpiryDate,
+                    SupplierId = agreement.SupplierId,
+                    CreateBy = dbUser.UserId
+                };
+                _dbContext.Agreement.Add(dbAgreement);
+                _dbContext.SaveChanges();
+                var agreementId = dbAgreement.AgreementId;
+                _dbContext.Entry(dbAgreement).State = EntityState.Detached;
+
+                details.AgreementId = agreementId;
+                _dbContext.PlannedPurchaseAgreementDetails.Add(details);
+                _dbContext.SaveChanges();
+
+                foreach (var line in dbLine.Values)
+                {
+                    line.AgreementId = agreementId;
+                    var entry = _dbContext.PlannedPurchaseAgreementLine.Add(line);
                     _dbContext.SaveChanges();
                     entry.State = EntityState.Detached;
                 }
