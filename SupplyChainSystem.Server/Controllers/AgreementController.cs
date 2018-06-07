@@ -148,7 +148,7 @@ namespace SupplyChainSystem.Server.Controllers
             }
             else if (agreement.AgreementType == 1) //CPA
             {
-                ICollection<string> items = new HashSet<string>();
+                ICollection<QuantityItems> items = new List<QuantityItems>();
                 ContractPurchaseAgreementDetails details;
                 try
                 {
@@ -169,10 +169,10 @@ namespace SupplyChainSystem.Server.Controllers
 
                 foreach (var item in items)
                 {
-                    var dbItem = _dbContext.Item.SingleOrDefault(p => item == p.SupplierItemId);
+                    var dbItem = _dbContext.Item.SingleOrDefault(p => item.ItemId == p.SupplierItemId);
                     if (dbItem == null)
                     {
-                        return SupplyResponse.NotFound("supplier item", item);
+                        return SupplyResponse.NotFound("supplier item", item.ItemId);
                     }
 
                     dbLine.Add(new ContractPurchaseAgreementLine()
