@@ -56,16 +56,17 @@ namespace SupplyChainSystem.Server.Controllers
                     .SingleOrDefault(p => currentUser.FindFirst(ClaimTypes.Name).Value.Equals(p.UserName));
             if (dbUser == null) return SupplyResponse.Fail("Unauthorize", "Your are not the user in the system.");
 
-            if (agreement.Details == null || agreement.ExpiryDate == 0 || agreement.StartDate == 0 ||
+            if (agreement.Details == null ||
                 agreement.Items == null || agreement.SupplierId == 0)
             {
                 return SupplyResponse.RequiredFieldEmpty();
             }
 
-            if (agreement.ExpiryDate != -1 && agreement.StartDate > agreement.ExpiryDate)
+            if (agreement.StartDate > agreement.ExpiryDate)
             {
                 return SupplyResponse.BadRequest("Start date cannot later than Expiry Date");
             }
+
 
             //BPA
             if (agreement.AgreementType == 0)
@@ -121,8 +122,8 @@ namespace SupplyChainSystem.Server.Controllers
                 {
                     AgreementType = AgreementType.Blanket,
                     Currency = agreement.Currency,
-                    StartDate = new DateTime(agreement.StartDate),
-                    ExpiryDate = new DateTime(agreement.ExpiryDate),
+                    StartDate = agreement.StartDate,
+                    ExpiryDate = agreement.ExpiryDate,
                     SupplierId = agreement.SupplierId,
                     CreateBy = dbUser.UserId
                 };
@@ -184,8 +185,8 @@ namespace SupplyChainSystem.Server.Controllers
                 {
                     AgreementType = AgreementType.Contract,
                     Currency = agreement.Currency,
-                    StartDate = new DateTime(agreement.StartDate),
-                    ExpiryDate = new DateTime(agreement.ExpiryDate),
+                    StartDate = agreement.StartDate,
+                    ExpiryDate = agreement.ExpiryDate,
                     SupplierId = agreement.SupplierId,
                     CreateBy = dbUser.UserId
                 };
@@ -209,6 +210,7 @@ namespace SupplyChainSystem.Server.Controllers
 
                 return Get(agreementId);
             }
+
             return SupplyResponse.NotFound("Agreement Type", agreement.AgreementType + "");
         }
 

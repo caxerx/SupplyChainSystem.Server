@@ -10,8 +10,8 @@ namespace SupplyChainSystem.Server.ResponseWrapper
     {
         public int AgreementType { get; set; }
         public string Currency { get; set; }
-        public long StartDate { get; set; }
-        public long ExpiryDate { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime ExpiryDate { get; set; }
         public int SupplierId { get; set; }
         public dynamic Details { get; set; }
         public ICollection<dynamic> Items { get; set; }
