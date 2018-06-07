@@ -69,7 +69,7 @@ namespace SupplyChainSystem.Server.Controllers
 
 
             //BPA
-            if (agreement.AgreementType == 0)
+            if (agreement.AgreementType == AgreementType.Blanket)
             {
                 ICollection<QuantityItems> items = new List<QuantityItems>();
                 BlanketPurchaseAgreementDetails details;
@@ -146,7 +146,7 @@ namespace SupplyChainSystem.Server.Controllers
 
                 return Get(agreementId);
             }
-            else if (agreement.AgreementType == 1) //CPA
+            else if (agreement.AgreementType == AgreementType.Contract) //CPA
             {
                 ICollection<QuantityItems> items = new List<QuantityItems>();
                 ContractPurchaseAgreementDetails details;
@@ -154,7 +154,7 @@ namespace SupplyChainSystem.Server.Controllers
                 {
                     foreach (var item in agreement.Items)
                     {
-                        items.Add(item);
+                        items.Add(item.ToObject<QuantityItems>());
                     }
 
                     details = agreement.Details.ToObject<ContractPurchaseAgreementDetails>();
@@ -210,7 +210,7 @@ namespace SupplyChainSystem.Server.Controllers
 
                 return Get(agreementId);
             }
-            else if (agreement.AgreementType == 2)
+            else if (agreement.AgreementType == AgreementType.Planned)
             {
                 ICollection<QuantityItems> items = new List<QuantityItems>();
                 PlannedPurchaseAgreementDetails details;

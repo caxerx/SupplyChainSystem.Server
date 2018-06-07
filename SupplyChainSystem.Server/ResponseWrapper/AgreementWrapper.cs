@@ -8,7 +8,7 @@ namespace SupplyChainSystem.Server.ResponseWrapper
 {
     public class AgreementWrapper
     {
-        public int AgreementType { get; set; }
+        public AgreementType AgreementType { get; set; }
         public string Currency { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime ExpiryDate { get; set; }
