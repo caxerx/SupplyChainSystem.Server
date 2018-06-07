@@ -21,7 +21,7 @@ namespace SupplyChainSystem.Server.Models
         [ForeignKey("User")] public int RequestCreator { get; set; }
         public User User { get; set; }
 
-        public int RequestStatus { get; set; }
+        public RequestStatus RequestStatus { get; set; }
 
         public DateTime CreateTime { get; set; }
         public ICollection<RequestItem> RequestItem { get; set; }

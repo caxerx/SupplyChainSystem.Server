@@ -30,7 +30,7 @@ namespace SupplyChainSystem.Server.Controllers
         [HttpPost]
         public SupplyResponse CreateToken([FromBody] LoginRequest login)
         {
-            var response = SupplyResponse.Fail("Unauthorized", "User not found");
+            var response = SupplyResponse.Fail("Unauthorize", "Your are not the user in the system.");
             var user = Authenticate(login);
 
             if (user != null)
@@ -45,9 +45,22 @@ namespace SupplyChainSystem.Server.Controllers
 
         [HttpGet]
         [Authorize]
-        public IActionResult TestToken()
+        public SupplyResponse Refresh()
         {
-            return Ok(SupplyResponse.Ok());
+            var currentUser = HttpContext.User;
+
+            var dbUser =
+                _dbContext.User.SingleOrDefault(p => currentUser.FindFirst(ClaimTypes.Name).Value.Equals(p.UserName));
+
+            if (dbUser == null) return SupplyResponse.Fail("Unauthorize", "Your are not the user in the system.");
+
+
+            var expiry = DateTime.Now.AddDays(1);
+            var tokenString = BuildToken(expiry, dbUser);
+            var response = SupplyResponse.Ok(new {token = tokenString, userType = dbUser.UserType, expiry, dbUser});
+
+
+            return response;
         }
 
 
@@ -79,6 +92,7 @@ namespace SupplyChainSystem.Server.Controllers
 
             return user;
         }
+
 
         public class LoginRequest
         {

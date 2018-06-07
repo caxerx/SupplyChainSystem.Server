@@ -41,7 +41,7 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Post([FromBody] Supplier supplier)
         {
-            if (string.IsNullOrWhiteSpace(supplier.SupplierName))
+            if (string.IsNullOrWhiteSpace(supplier.SupplierName) || string.IsNullOrWhiteSpace(supplier.SupplierContactPerson) || string.IsNullOrWhiteSpace(supplier.SupplierAddress))
                 return SupplyResponse.BadRequest("Required Field is Empty");
             _dbContext.Supplier.Add(supplier);
             _dbContext.SaveChanges();

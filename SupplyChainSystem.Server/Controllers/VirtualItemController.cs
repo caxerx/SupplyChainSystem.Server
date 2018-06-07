@@ -65,7 +65,7 @@ namespace SupplyChainSystem.Server.Controllers
                 string.IsNullOrWhiteSpace(item.VirtualItemId))
                 return SupplyResponse.RequiredFieldEmpty();
 
-            var entity = _dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId.Equals(id));
+            var entity = _dbContext.VirtualItem.AsNoTracking().SingleOrDefault(p => p.VirtualItemId.Equals(id));
             if (entity == null) return Post(item);
 
             if (entity.VirtualItemId != item.VirtualItemId &&
@@ -73,7 +73,7 @@ namespace SupplyChainSystem.Server.Controllers
                 return SupplyResponse.DuplicateEntry("virtual item", item.VirtualItemId);
 
             item.Id = entity.Id;
-            var entry= _dbContext.Attach(item);
+            var entry = _dbContext.Attach(item);
             //var entry = _dbContext.Entry(entity);
             //entry.CurrentValues.SetValues(item);
             entry.State = EntityState.Modified;

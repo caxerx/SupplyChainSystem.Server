@@ -16,6 +16,10 @@ namespace SupplyChainSystem.Server.Models
 
         public string SupplierEmail { get; set; }
 
+        public string SupplierAddress { get; set; }
+
+        public string SupplierContactPerson { get; set; }
+
         public ICollection<Item> Items { get; set; }
     }
 }
