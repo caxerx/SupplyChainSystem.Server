@@ -75,7 +75,7 @@ namespace SupplyChainSystem.Server
             app.UseCors("AllowAllOrigins");
 
 
-            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+            if (env.IsDevelopment()) app.UseDeveloperExceptionPage(); 
 
 
             //allow corss origin for test

@@ -20,6 +20,7 @@ namespace SupplyChainSystem.Server
         public DbSet<Stock> Stock { get; set; }
         public DbSet<StockItem> StockItem { get; set; }
         public DbSet<Restaurant> Restaurant { get; set; }
+        public DbSet<Warehouse> Warehouse { get; set; }
         public DbSet<RestaurantManager> RestaurantManager { get; set; }
         public DbSet<Models.Request> Request { get; set; }
         public DbSet<RequestItem> RequestItem { get; set; }

@@ -426,7 +426,7 @@ namespace SupplyChainSystem.Server.Controllers
                     _dbContext.SaveChanges();
                     entry.State = EntityState.Detached;
                 }
-
+                _dbContext.SaveChanges();
                 return Get(dbAgreement.AgreementId);
             }
             else if (agreement.AgreementType == AgreementType.Contract) //CPA
@@ -560,6 +560,7 @@ namespace SupplyChainSystem.Server.Controllers
                     {
                         ItemId = dbItem.Id,
                         Quantity = item.Quantity,
+
                         Price = item.Price,
                         Unit = item.Unit
                     };
