@@ -17,6 +17,8 @@ namespace SupplyChainSystem.Server.Models
         [Required] public string Unit { get; set; }
         [Required] public double Price { get; set; }
 
+        [Required] public double UsedQuantity { get; set; }
+
         public Item Item { get; set; }
         [JsonIgnore] public Agreement Agreement { get; set; }
     }

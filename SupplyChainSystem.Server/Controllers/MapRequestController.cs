@@ -37,13 +37,18 @@ namespace SupplyChainSystem.Server.Controllers
             foreach (var request in requestQueue)
             {
                 //find all items in request
-                var vItems = request.RequestItem.Select(p => p.VirtualItem);
+                var vItems = request.RequestItem.Select(p => p.VirtualItem).ToList();
 
-                //search for blanket
-                var blanketAgreements = _dbContext.Agreement.Where(p => p.AgreementType == AgreementType.Blanket)
+                //search for active blanket
+                var blanketAgreements = _dbContext.Agreement.Where(p =>
+                        p.AgreementType == AgreementType.Blanket && DateTime.Now < p.ExpiryDate)
                     .Select(p => p)
                     .Include(p => p.BlanketPurchaseAgreementDetails)
                     .Include(p => p.BlanketPurchaseAgreementLines).ThenInclude(p => p.Item);
+
+                var matchedAgreement = new List<Agreement>();
+
+                //search any agreement that contains all items in Request status
                 foreach (var agreement in blanketAgreements)
                 {
                     var agreementVItems = agreement.BlanketPurchaseAgreementLines.Select(p =>
@@ -54,12 +59,56 @@ namespace SupplyChainSystem.Server.Controllers
                         ls.AddRange(i);
                         return ls;
                     });
+
+                    if (!vItems.Any(p => agreementVItems.Contains(p)))
+                    {
+                        matchedAgreement.Add(agreement);
+                    }
                 }
 
+                var matchedAgreementWithLine = new Dictionary<Agreement, dynamic>();
+                //find promised qty & min qty
+                foreach (var agreement in matchedAgreement)
+                {
+                    var amount = 0d;
+                    var lines = agreement.BlanketPurchaseAgreementLines;
+                    var matchedLines = new List<dynamic>();
+                    foreach (var requestItem in request.RequestItem)
+                    {
+                        var vItem = requestItem.VirtualItem;
+                        var matchedLine = lines.SingleOrDefault(line =>
+                        {
+                            if (line.Item.VirtualIdMap.Select(p => p.VirtualItem).Contains(vItem) &&
+                                requestItem.Quantity > line.MinimumQuantity &&
+                                line.UsedQuantity + requestItem.Quantity < line.PromisedQuantity)
+                            {
+                                amount += line.Price * requestItem.Quantity;
+                                return true;
+                            }
 
+                            return false;
+                        });
+                        if (matchedLine == null)
+                        {
+                            amount = 0d;
+                            matchedLines.Clear();
+                            break;
+                        }
+
+                        matchedLines.Add(new {requestItem, matchedLine});
+                    }
+
+                    var details = agreement.BlanketPurchaseAgreementDetails;
+                    if (matchedLines.Any() && details.AmountUsed + amount <= details.AmountAgreed)
+                    {
+                        matchedAgreementWithLine.Add(agreement, matchedLines);
+                    }
+                }
+
+                return SupplyResponse.Ok(matchedAgreementWithLine);
             }
 
-            return SupplyResponse.Ok();
+            return SupplyResponse.Fail("FuckedUp", "nothing fucking");
         }
     }
 }

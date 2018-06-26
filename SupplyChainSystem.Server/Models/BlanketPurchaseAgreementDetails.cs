@@ -15,6 +15,8 @@ namespace SupplyChainSystem.Server.Models
         [Required] public string Account { get; set; }
         [Required] public double AmountAgreed { get; set; }
 
+        [Required] public double AmountUsed { get; set; }
+
         [JsonIgnore] public Agreement Agreement { get; set; }
     }
 }

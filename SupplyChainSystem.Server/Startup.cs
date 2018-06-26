@@ -81,7 +81,7 @@ namespace SupplyChainSystem.Server
             //allow corss origin for test
             app.UseMvc();
 
-            //dbContext.Database.EnsureDeleted();
+            dbContext.Database.EnsureDeleted();
             dbContext.Database.EnsureCreated();
 
             if (env.IsDevelopment())
