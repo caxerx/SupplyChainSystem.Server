@@ -409,7 +409,8 @@ namespace SupplyChainSystem.Server.Controllers
                     CreateBy = _dbAgreement.CreateBy,
                     TermsAndCondition = agreement.TermsAndCondition
                 };
-                _dbContext.Agreement.Attach(dbAgreement);
+                var agreementEntry = _dbContext.Agreement.Attach(dbAgreement);
+                agreementEntry.State = EntityState.Modified;
                 _dbContext.SaveChanges();
                 _dbContext.Entry(dbAgreement).State = EntityState.Detached;
 
@@ -426,6 +427,7 @@ namespace SupplyChainSystem.Server.Controllers
                     _dbContext.SaveChanges();
                     entry.State = EntityState.Detached;
                 }
+
                 _dbContext.SaveChanges();
                 return Get(dbAgreement.AgreementId);
             }

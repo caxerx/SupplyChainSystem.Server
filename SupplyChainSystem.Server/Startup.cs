@@ -75,20 +75,30 @@ namespace SupplyChainSystem.Server
             app.UseCors("AllowAllOrigins");
 
 
-            if (env.IsDevelopment()) app.UseDeveloperExceptionPage(); 
+            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
 
             //allow corss origin for test
             app.UseMvc();
 
-            dbContext.Database.EnsureDeleted();
+            //dbContext.Database.EnsureDeleted();
             dbContext.Database.EnsureCreated();
+
+
+            //create warehouse stock if not exist
+            if (dbContext.Stock.SingleOrDefault(ws => ws.StockType == StockType.WarehouseStock) == null)
+            {
+                dbContext.Stock.Add(new Stock
+                {
+                    StockType = StockType.WarehouseStock
+                });
+            }
 
             if (env.IsDevelopment())
             {
                 //TEST USER
                 var testUser = dbContext.User.SingleOrDefault(p => p.UserName == "Test");
-                if (testUser == null) dbContext.User.Add(new User("Test", "TestUser", "Test", UserType.Administrator));
+                if (testUser == null) dbContext.User.Add(new User("Test", "TestUser", "Test", UserType.ROOT));
 
                 dbContext.SaveChanges();
             }

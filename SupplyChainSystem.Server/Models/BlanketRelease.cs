@@ -4,17 +4,16 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace SupplyChainSystem.Server.Models
 {
-    public class Stock
+    public class BlanketRelease
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Key]
-        public int StockId { get; set; }
+        [Key] public int OrderId { get; set; }
 
-        public StockType StockType { get; set; }
+        [ForeignKey("Request")] public int RequestId { get; set; }
 
-        public ICollection<StockItem> StockItem { get; set; }
+        public Request Request { get; set; }
     }
 }

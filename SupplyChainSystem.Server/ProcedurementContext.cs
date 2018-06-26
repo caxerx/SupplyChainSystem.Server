@@ -20,7 +20,6 @@ namespace SupplyChainSystem.Server
         public DbSet<Stock> Stock { get; set; }
         public DbSet<StockItem> StockItem { get; set; }
         public DbSet<Restaurant> Restaurant { get; set; }
-        public DbSet<Warehouse> Warehouse { get; set; }
         public DbSet<RestaurantManager> RestaurantManager { get; set; }
         public DbSet<Models.Request> Request { get; set; }
         public DbSet<RequestItem> RequestItem { get; set; }
@@ -31,6 +30,7 @@ namespace SupplyChainSystem.Server
         public DbSet<ContractPurchaseAgreementLine> ContractPurchaseAgreementLine { get; set; }
         public DbSet<PlannedPurchaseAgreementDetails> PlannedPurchaseAgreementDetails { get; set; }
         public DbSet<PlannedPurchaseAgreementLine> PlannedPurchaseAgreementLine { get; set; }
+        public DbSet<RequestMap> RequestMap { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -40,10 +40,10 @@ namespace SupplyChainSystem.Server
             modelBuilder.Entity<VirtualIdMap>().HasKey(sc => new {sc.ItemId, sc.VirtualItemId});
             modelBuilder.Entity<CategoryItem>().HasKey(sc => new {sc.VirtualItemId, sc.CategoryId});
             modelBuilder.Entity<RequestItem>().HasKey(sc => new {sc.RequestId, sc.VirtualItemId});
-            modelBuilder.Entity<StockItem>().HasKey(sc => new { sc.StockId, sc.VirtualItemId });
-            modelBuilder.Entity<BlanketPurchaseAgreementLine>().HasKey(sc => new { sc.AgreementId, sc.ItemId });
-            modelBuilder.Entity<ContractPurchaseAgreementLine>().HasKey(sc => new { sc.AgreementId, sc.ItemId });
-            modelBuilder.Entity<PlannedPurchaseAgreementLine>().HasKey(sc => new { sc.AgreementId, sc.ItemId });
+            modelBuilder.Entity<StockItem>().HasKey(sc => new {sc.StockId, sc.VirtualItemId});
+            modelBuilder.Entity<BlanketPurchaseAgreementLine>().HasKey(sc => new {sc.AgreementId, sc.ItemId});
+            modelBuilder.Entity<ContractPurchaseAgreementLine>().HasKey(sc => new {sc.AgreementId, sc.ItemId});
+            modelBuilder.Entity<PlannedPurchaseAgreementLine>().HasKey(sc => new {sc.AgreementId, sc.ItemId});
         }
     }
 }
