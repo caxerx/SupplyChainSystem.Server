@@ -15,7 +15,7 @@ namespace SupplyChainSystem.Server.Models
         [JsonIgnore] public Request Request { get; set; }
 
         public int VirtualItemId { get; set; }
-        [JsonIgnore] public VirtualItem VirtualItem { get; set; }
+        public VirtualItem VirtualItem { get; set; }
 
         public int Quantity { get; set; }
 

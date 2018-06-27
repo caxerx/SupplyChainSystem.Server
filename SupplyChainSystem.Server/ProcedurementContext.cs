@@ -31,6 +31,9 @@ namespace SupplyChainSystem.Server
         public DbSet<PlannedPurchaseAgreementDetails> PlannedPurchaseAgreementDetails { get; set; }
         public DbSet<PlannedPurchaseAgreementLine> PlannedPurchaseAgreementLine { get; set; }
         public DbSet<RequestMap> RequestMap { get; set; }
+        public DbSet<BlanketRelease> BlanketRelease { get; set; }
+        public DbSet<BlanketReleaseLine> BlanketReleaseLine { get; set; }
+        public DbSet<DespatchInstruction> DespatchInstruction { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

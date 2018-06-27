@@ -16,6 +16,8 @@ namespace SupplyChainSystem.Server.Models
 
         public Item Item { get; set; }
 
+        public double Quantity { get; set; }
+
         [JsonIgnore] public Agreement Agreement { get; set; }
     }
 }

@@ -14,6 +14,8 @@ namespace SupplyChainSystem.Server.Models
 
         [ForeignKey("Request")] public int RequestId { get; set; }
 
+        [ForeignKey("Agreement")] public int AgreementId { get; set; }
+
         public Request Request { get; set; }
     }
 }

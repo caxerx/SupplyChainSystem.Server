@@ -10,6 +10,7 @@ namespace SupplyChainSystem.Server.Models
 {
     public class DespatchInstruction
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key] public int DeliveryNoteId { get; set; }
 
         public int DeliveryStatus { get; set; }

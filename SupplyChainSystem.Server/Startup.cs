@@ -92,6 +92,7 @@ namespace SupplyChainSystem.Server
                 {
                     StockType = StockType.WarehouseStock
                 });
+                dbContext.SaveChanges();
             }
 
             if (env.IsDevelopment())
