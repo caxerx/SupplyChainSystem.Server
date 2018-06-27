@@ -34,6 +34,8 @@ namespace SupplyChainSystem.Server
         public DbSet<BlanketRelease> BlanketRelease { get; set; }
         public DbSet<BlanketReleaseLine> BlanketReleaseLine { get; set; }
         public DbSet<DespatchInstruction> DespatchInstruction { get; set; }
+        public DbSet<StandardPurchaseOrder> StandardPurchaseOrder { get; set; }
+        public DbSet<StandardPurchaseOrderLine> StandardPurchaseOrderLine { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

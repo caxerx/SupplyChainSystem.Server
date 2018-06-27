@@ -44,7 +44,8 @@ namespace SupplyChainSystem.Server.Controllers
 
                 //search for active blanket
                 var blanketAgreements = _dbContext.Agreement.Where(p =>
-                        p.AgreementType == AgreementType.Blanket && DateTime.Now < p.ExpiryDate)
+                        p.AgreementType == AgreementType.Blanket && DateTime.Now < p.ExpiryDate &&
+                        DateTime.Now > p.StartDate)
                     .Select(p => p)
                     .Include(p => p.BlanketPurchaseAgreementDetails)
                     .Include(p => p.BlanketPurchaseAgreementLines).ThenInclude(p => p.Item);
@@ -130,7 +131,8 @@ namespace SupplyChainSystem.Server.Controllers
 
                 if (matchedAgreementList.Any())
                 {
-                    var selectedAgreement = matchedAgreementList.OrderBy(p => p.ExpiryDate).First();
+                    var selectedAgreement = matchedAgreementList
+                        .OrderBy(p => p.ExpiryDate).First();
                     Console.WriteLine($"Adding request map {request.RequestId}");
                     var _dbRequestMap = _dbContext.RequestMap.Add(new RequestMap
                     {
@@ -274,7 +276,8 @@ namespace SupplyChainSystem.Server.Controllers
                     _dbContext.SaveChanges();
 
                     var contractAgreements = _dbContext.Agreement.Where(p =>
-                            p.AgreementType == AgreementType.Contract && DateTime.Now < p.ExpiryDate)
+                            p.AgreementType == AgreementType.Contract && DateTime.Now < p.ExpiryDate &&
+                            DateTime.Now > p.StartDate)
                         .Select(p => p)
                         .Include(p => p.ContractPurchaseAgreementDetails)
                         .Include(p => p.ContractPurchaseAgreementLines).ThenInclude(p => p.Item);
@@ -314,12 +317,104 @@ namespace SupplyChainSystem.Server.Controllers
             return SupplyResponse.Ok(mapStatus);
         }
 
-        /*
+
         [HttpPost("{id}")]
         [Authorize]
-        public SupplyResponse Post(string id)
+        public SupplyResponse Post(int id, [FromBody] RequestMap map)
         {
+            var _dbAgreement = _dbContext.Agreement
+                .Include(p => p.ContractPurchaseAgreementDetails)
+                .Include(p => p.ContractPurchaseAgreementLines).ThenInclude(p => p.Item).SingleOrDefault(p =>
+                    p.AgreementId == map.AgreementId &&
+                    p.AgreementType == AgreementType.Contract && DateTime.Now < p.ExpiryDate &&
+                    DateTime.Now > p.StartDate);
+
+            if (_dbAgreement == null)
+            {
+                return SupplyResponse.NotFound("Active Agreement", map.AgreementId + "");
+            }
+
+            var request = _dbContext.Request.SingleOrDefault(p =>
+                p.RequestId == id && (p.RequestStatus == RequestStatus.WaitingForProcess ||
+                                      p.RequestStatus == RequestStatus.Failed));
+            if (request == null)
+            {
+                return SupplyResponse.NotFound("Unprocessed Request", map.AgreementId + "");
+            }
+
+
+            var contractVirtualItem = _dbAgreement.ContractPurchaseAgreementLines
+                .Select(p => p.Item.VirtualIdMap).Select(p => p.Select(q => q.VirtualItem))
+                .Aggregate((all, t) =>
+                {
+                    var its = new List<VirtualItem>();
+                    its.AddRange(all);
+                    its.AddRange(t);
+                    return its;
+                });
+
+            if (request.RequestItem.All(p => contractVirtualItem.Contains(p.VirtualItem)))
+            {
+                var _dbRequestMap = _dbContext.RequestMap.Add(new RequestMap
+                {
+                    RequestId = request.RequestId,
+                    AgreementId = _dbAgreement.AgreementId,
+                    MapType = MapType.Contract
+                });
+                _dbContext.SaveChanges();
+                var order = new StandardPurchaseOrder
+                {
+                    AgreementId = _dbAgreement.AgreementId,
+                    RequestId = request.RequestId
+                };
+
+                var _dbOrder = _dbContext.StandardPurchaseOrder.Add(order);
+                _dbContext.SaveChanges();
+
+                var idmaps = _dbAgreement.ContractPurchaseAgreementLines
+                    .Select(p => p.Item.VirtualIdMap).Select(p => p)
+                    .Aggregate((all, t) =>
+                    {
+                        var its = new List<VirtualIdMap>();
+                        its.AddRange(all);
+                        its.AddRange(t);
+                        return its;
+                    });
+
+                foreach (var requestItem in request.RequestItem)
+                {
+                    foreach (var idmap in idmaps)
+                    {
+                        if (idmap.VirtualItemId == requestItem.VirtualItemId)
+                        {
+                            _dbContext.StandardPurchaseOrderLine.Add(new StandardPurchaseOrderLine
+                            {
+                                OrderId = _dbOrder.Entity.OrderId,
+                                ItemId = idmap.ItemId,
+                                Quantity = requestItem.Quantity,
+                            });
+                            _dbContext.SaveChanges();
+                            break;
+                        }
+                    }
+                }
+
+                request.RequestStatus = RequestStatus.Ordered;
+                _dbContext.SaveChanges();
+
+                return SupplyResponse.Ok(new
+                {
+                    RequestId = request.RequestId,
+                    MapStatus = new
+                    {
+                        Success = true,
+                        Type = "Contract"
+                    },
+                    RequestMap = _dbRequestMap.Entity
+                });
+            }
+
+            return SupplyResponse.Fail("Agreement Not Match", "The selected agreement can't match this request.");
         }
-        */
     }
 }

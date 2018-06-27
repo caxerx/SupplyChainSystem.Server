@@ -17,8 +17,6 @@ namespace SupplyChainSystem.Server.Models
         [ForeignKey("Item")] public int ItemId { get; set; }
         public double Quantity { get; set; }
 
-        public double Price { get; set; }
-
 
         public StandardPurchaseOrder StandardPurchaseOrder { get; set; }
         public Item Item { get; set; }

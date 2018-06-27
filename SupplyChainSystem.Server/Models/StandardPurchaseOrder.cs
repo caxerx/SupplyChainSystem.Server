@@ -18,5 +18,6 @@ namespace SupplyChainSystem.Server.Models
         public Request Request { get; set; }
         public Agreement Agreement { get; set; }
 
+        public int PurchaseOrderStatus { get; set; }
     }
 }
