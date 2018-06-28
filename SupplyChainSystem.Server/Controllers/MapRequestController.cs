@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using SupplyChainSystem.Server.Models;
 
 namespace SupplyChainSystem.Server.Controllers
@@ -314,6 +315,13 @@ namespace SupplyChainSystem.Server.Controllers
                 }
             }
 
+            _dbContext.DataCache.Add(new DataCache
+            {
+                CacheTime = DateTime.Now,
+                CacheType = "RequestMap",
+                Content = JsonConvert.SerializeObject(mapStatus)
+            });
+
             return SupplyResponse.Ok(mapStatus);
         }
 
@@ -334,9 +342,11 @@ namespace SupplyChainSystem.Server.Controllers
                 return SupplyResponse.NotFound("Active Agreement", map.AgreementId + "");
             }
 
-            var request = _dbContext.Request.SingleOrDefault(p =>
-                p.RequestId == id && (p.RequestStatus == RequestStatus.WaitingForProcess ||
-                                      p.RequestStatus == RequestStatus.Failed));
+            var request = _dbContext.Request.Include(p => p.RequestItem).ThenInclude(p => p.VirtualItem)
+                .ThenInclude(p => p.VirtualIdMap).ThenInclude(p => p.Item)
+                .SingleOrDefault(p =>
+                    p.RequestId == id && (p.RequestStatus == RequestStatus.WaitingForProcess ||
+                                          p.RequestStatus == RequestStatus.Failed));
             if (request == null)
             {
                 return SupplyResponse.NotFound("Unprocessed Request", map.AgreementId + "");
@@ -344,16 +354,16 @@ namespace SupplyChainSystem.Server.Controllers
 
 
             var contractVirtualItem = _dbAgreement.ContractPurchaseAgreementLines
-                .Select(p => p.Item.VirtualIdMap).Select(p => p.Select(q => q.VirtualItem))
-                .Aggregate((all, t) =>
-                {
-                    var its = new List<VirtualItem>();
-                    its.AddRange(all);
-                    its.AddRange(t);
-                    return its;
-                });
+                                          .Select(p => p.Item.VirtualIdMap).Select(p => p?.Select(q => q.VirtualItem))
+                                          .Aggregate((all, t) =>
+                                          {
+                                              var its = new List<VirtualItem>();
+                                              its.AddRange(all);
+                                              its.AddRange(t);
+                                              return its;
+                                          }) ?? new List<VirtualItem>();
 
-            if (request.RequestItem.All(p => contractVirtualItem.Contains(p.VirtualItem)))
+            if ((request.RequestItem ?? new List<RequestItem>()).All(p => contractVirtualItem.Contains(p.VirtualItem)))
             {
                 var _dbRequestMap = _dbContext.RequestMap.Add(new RequestMap
                 {
@@ -381,7 +391,8 @@ namespace SupplyChainSystem.Server.Controllers
                         return its;
                     });
 
-                foreach (var requestItem in request.RequestItem)
+
+                foreach (var requestItem in request.RequestItem ?? new List<RequestItem>())
                 {
                     foreach (var idmap in idmaps)
                     {
@@ -415,6 +426,19 @@ namespace SupplyChainSystem.Server.Controllers
             }
 
             return SupplyResponse.Fail("Agreement Not Match", "The selected agreement can't match this request.");
+        }
+
+
+        [HttpGet]
+        [Authorize]
+        public SupplyResponse Get()
+        {
+            var res = _dbContext.DataCache.OrderByDescending(p => p.CacheTime)
+                .SingleOrDefault(p => p.CacheType == "RequestMap");
+            return res == null
+                ? SupplyResponse.Fail("First Request Mapping",
+                    "System never run a request mapping before. To start request map manually, click start button.")
+                : SupplyResponse.Ok(res);
         }
     }
 }

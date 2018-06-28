@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using SupplyChainSystem.Server.Hub;
 using SupplyChainSystem.Server.Models;
 
 namespace SupplyChainSystem.Server
@@ -27,6 +28,7 @@ namespace SupplyChainSystem.Server
             HashUtilities.Salt =
                 (string) Configuration.GetSection("ApplicationConfig").GetValue(typeof(string), "Salt");
 
+            services.AddSignalR();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -56,6 +58,7 @@ namespace SupplyChainSystem.Server
 
             services.AddMvc().AddJsonOptions(options =>
             {
+                options.SerializerSettings.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
             });
 
@@ -78,6 +81,8 @@ namespace SupplyChainSystem.Server
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
 
+            app.UseWebSockets();
+            app.UseSignalR("/api/notification");
             //allow corss origin for test
             app.UseMvc();
 

@@ -25,7 +25,7 @@ namespace SupplyChainSystem.Server.Controllers
         public SupplyResponse Get()
         {
             var requests = _dbContext.Request.Include(p => p.User).Include(p => p.RequestItem)
-                .ThenInclude(p => p.VirtualItem)
+                .ThenInclude(p => p.VirtualItem).Include(p=>p.RequestMap)
                 .Select(p => p);
 
 
@@ -46,7 +46,7 @@ namespace SupplyChainSystem.Server.Controllers
         public SupplyResponse Get(int id)
         {
             var request = _dbContext.Request.Include(p => p.User).Include(p => p.RequestItem)
-                .ThenInclude(p => p.VirtualItem)
+                .ThenInclude(p => p.VirtualItem).Include(p => p.RequestMap)
                 .SingleOrDefault(p => p.RequestId == id);
             if (request == null) return SupplyResponse.NotFound("request", id + "");
 

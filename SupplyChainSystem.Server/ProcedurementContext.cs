@@ -36,6 +36,7 @@ namespace SupplyChainSystem.Server
         public DbSet<DespatchInstruction> DespatchInstruction { get; set; }
         public DbSet<StandardPurchaseOrder> StandardPurchaseOrder { get; set; }
         public DbSet<StandardPurchaseOrderLine> StandardPurchaseOrderLine { get; set; }
+        public DbSet<DataCache> DataCache { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

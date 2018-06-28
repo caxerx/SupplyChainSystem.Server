@@ -25,5 +25,9 @@ namespace SupplyChainSystem.Server.Models
 
         public DateTime CreateTime { get; set; }
         public ICollection<RequestItem> RequestItem { get; set; }
+
+        public RequestMap RequestMap { get; set; }
+
+        
     }
 }

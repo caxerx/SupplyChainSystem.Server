@@ -18,7 +18,7 @@ namespace SupplyChainSystem.Server.Models
         public double Quantity { get; set; }
 
 
-        public StandardPurchaseOrder StandardPurchaseOrder { get; set; }
+        [JsonIgnore] public StandardPurchaseOrder StandardPurchaseOrder { get; set; }
         public Item Item { get; set; }
     }
 }

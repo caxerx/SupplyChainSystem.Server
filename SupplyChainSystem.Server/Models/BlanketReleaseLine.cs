@@ -19,7 +19,7 @@ namespace SupplyChainSystem.Server.Models
 
         public double Price { get; set; }
 
-        public BlanketRelease BlanketRelease { get; set; }
+        [JsonIgnore]public BlanketRelease BlanketRelease { get; set; }
         public Item Item { get; set; }
     }
 }

@@ -19,5 +19,7 @@ namespace SupplyChainSystem.Server.Models
         public Agreement Agreement { get; set; }
 
         public int PurchaseOrderStatus { get; set; }
+
+        public ICollection<StandardPurchaseOrderLine> StandardPurchaseOrderLine { get; set; }
     }
 }
