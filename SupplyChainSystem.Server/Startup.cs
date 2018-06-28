@@ -1,15 +1,20 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using SupplyChainSystem.Server.Hub;
 using SupplyChainSystem.Server.Models;
+using SupplyChainSystem.Server.Service;
 
 namespace SupplyChainSystem.Server
 {
@@ -67,6 +72,8 @@ namespace SupplyChainSystem.Server
                 options.UseMySQL(Configuration.GetConnectionString("DefaultConnection"));
                 options.EnableSensitiveDataLogging();
             });
+
+            services.AddHostedService<TimedHostedService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -82,10 +89,7 @@ namespace SupplyChainSystem.Server
 
 
             app.UseWebSockets();
-            app.UseSignalR(routes =>
-            {
-                routes.MapHub<NotificationHub>("/api/notification");
-            });
+            app.UseSignalR(routes => { routes.MapHub<NotificationHub>("/api/notification"); });
             //allow corss origin for test
             app.UseMvc();
 
@@ -102,6 +106,7 @@ namespace SupplyChainSystem.Server
                 });
                 dbContext.SaveChanges();
             }
+
 
             if (env.IsDevelopment())
             {

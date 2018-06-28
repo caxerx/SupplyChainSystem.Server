@@ -5,6 +5,7 @@ namespace SupplyChainSystem.Server
 {
     public class ProcedurementContext : DbContext
     {
+
         public ProcedurementContext(DbContextOptions<ProcedurementContext> options) : base(options)
         {
         }
@@ -37,6 +38,7 @@ namespace SupplyChainSystem.Server
         public DbSet<StandardPurchaseOrder> StandardPurchaseOrder { get; set; }
         public DbSet<StandardPurchaseOrderLine> StandardPurchaseOrderLine { get; set; }
         public DbSet<DeliveryNote> DeliveryNote { get; set; }
+        public DbSet<ScheduleRelease> ScheduleRelease { get; set; }
         public DbSet<DataCache> DataCache { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
