@@ -82,7 +82,10 @@ namespace SupplyChainSystem.Server
 
 
             app.UseWebSockets();
-            app.UseSignalR("/api/notification");
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<NotificationHub>("/api/notification");
+            });
             //allow corss origin for test
             app.UseMvc();
 

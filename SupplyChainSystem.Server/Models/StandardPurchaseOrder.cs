@@ -18,6 +18,8 @@ namespace SupplyChainSystem.Server.Models
         public Request Request { get; set; }
         public Agreement Agreement { get; set; }
 
+        public DateTime CreateTime { get; set; }
+
         public int PurchaseOrderStatus { get; set; }
 
         public ICollection<StandardPurchaseOrderLine> StandardPurchaseOrderLine { get; set; }

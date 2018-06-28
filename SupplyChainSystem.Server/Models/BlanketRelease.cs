@@ -20,6 +20,8 @@ namespace SupplyChainSystem.Server.Models
 
         public int PurchaseOrderStatus { get; set; }
 
+        public DateTime CreateTime { get; set; }
+
         public ICollection<BlanketReleaseLine> BlanketReleaseLine { get; set; }
     }
 }

@@ -11,11 +11,11 @@ namespace SupplyChainSystem.Server.Controllers
 {
     [Produces("application/json")]
     [Route("api/[controller]")]
-    public class DespatchInstructionController : Controller
+    public class DeliveryNoteController : Controller
     {
         private readonly ProcedurementContext _dbContext;
 
-        public DespatchInstructionController(ProcedurementContext dbContext)
+        public DeliveryNoteController(ProcedurementContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -24,7 +24,7 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Get()
         {
-            var orders = _dbContext.DespatchInstruction.Include(p => p.Request)
+            var orders = _dbContext.DeliveryNote.Include(p => p.Request)
                 .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem).Select(p => p);
 
             return SupplyResponse.Ok(orders);
@@ -34,18 +34,18 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Get(int id)
         {
-            var order = _dbContext.DespatchInstruction.Include(p => p.Request)
+            var order = _dbContext.DeliveryNote.Include(p => p.Request)
                 .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem)
                 .SingleOrDefault(p => p.RequestId == id);
-            return order == null ? SupplyResponse.NotFound("Despatch Instruction", id + "") : SupplyResponse.Ok(order);
+            return order == null ? SupplyResponse.NotFound("Delivery Note", id + "") : SupplyResponse.Ok(order);
         }
 
 
         [HttpPut("{id}")]
         [Authorize]
-        public SupplyResponse Put(int id)
+        public SupplyResponse Put(int id,DeliveryNote deliveryNote)
         {
-            var order = _dbContext.DespatchInstruction.Include(p => p.Request)
+            var order = _dbContext.DeliveryNote.Include(p => p.Request)
                 .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem)
                 .SingleOrDefault(p => p.RequestId == id);
             if (order == null)
@@ -53,17 +53,10 @@ namespace SupplyChainSystem.Server.Controllers
                 return SupplyResponse.NotFound("Purchase Order", id + "");
             }
 
-            order.DespatchInstructionStatus = 1;
+            order.DeliveryStatus = deliveryNote.DeliveryStatus;
 
             _dbContext.SaveChanges();
 
-            _dbContext.DeliveryNote.Add(new DeliveryNote
-            {
-                CreateTime = DateTime.Now,
-                RequestId = order.RequestId
-            });
-
-            _dbContext.SaveChanges();
 
             return Get(id);
         }

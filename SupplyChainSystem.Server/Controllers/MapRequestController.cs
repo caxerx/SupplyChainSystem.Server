@@ -146,6 +146,7 @@ namespace SupplyChainSystem.Server.Controllers
 
                     var dbRelease = _dbContext.BlanketRelease.Add(new BlanketRelease
                     {
+                        CreateTime = DateTime.Now,
                         RequestId = request.RequestId,
                         AgreementId = selectedAgreement.AgreementId
                     });
@@ -222,8 +223,9 @@ namespace SupplyChainSystem.Server.Controllers
 
                         var despatchInstruction = _dbContext.DespatchInstruction.Add(new DespatchInstruction
                         {
+                            CreateTime = DateTime.Now,
                             RequestId = request.RequestId,
-                            DeliveryStatus = 0
+                            DespatchInstructionStatus = 0
                         });
 
                         foreach (var requestItem in request.RequestItem)
@@ -239,7 +241,7 @@ namespace SupplyChainSystem.Server.Controllers
                         {
                             MapType = MapType.Warehouse,
                             RequestId = request.RequestId,
-                            DespatchInstructionId = despatchInstruction.Entity.DeliveryNoteId
+                            DespatchInstructionId = despatchInstruction.Entity.DespatchInstructionId
                         });
 
                         _dbContext.SaveChanges();
@@ -374,6 +376,7 @@ namespace SupplyChainSystem.Server.Controllers
                 _dbContext.SaveChanges();
                 var order = new StandardPurchaseOrder
                 {
+                    CreateTime = DateTime.Now,
                     AgreementId = _dbAgreement.AgreementId,
                     RequestId = request.RequestId
                 };

@@ -24,8 +24,7 @@ namespace SupplyChainSystem.Server.Controllers
             _hubContext = hubContext;
         }
 
-
-        [Microsoft.AspNetCore.Authorization.Authorize]
+        
         public SupplyResponse Get()
         {
             _hubContext.Clients.All.SendAsync("ReceiveMessage", "r", "rrr");

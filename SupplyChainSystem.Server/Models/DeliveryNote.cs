@@ -8,12 +8,12 @@ using Newtonsoft.Json;
 
 namespace SupplyChainSystem.Server.Models
 {
-    public class DespatchInstruction
+    public class DeliveryNote
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Key] public int DespatchInstructionId { get; set; }
+        [Key] public int DeliveryNoteId { get; set; }
 
-        public int DespatchInstructionStatus { get; set; }
+        public int DeliveryStatus { get; set; }
 
         [ForeignKey("Request")] public int RequestId { get; set; }
 
