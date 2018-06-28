@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using SupplyChainSystem.Server.Hub;
 using SupplyChainSystem.Server.Models;
 
 namespace SupplyChainSystem.Server.Controllers
@@ -14,8 +16,9 @@ namespace SupplyChainSystem.Server.Controllers
     public class MapRequestController : Controller
     {
         private readonly ProcedurementContext _dbContext;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public MapRequestController(ProcedurementContext dbContext)
+        public MapRequestController(ProcedurementContext dbContext, IHubContext<NotificationHub> hubContext)
         {
             _dbContext = dbContext;
         }
@@ -262,6 +265,9 @@ namespace SupplyChainSystem.Server.Controllers
                             },
                             RequestMap = _dbRequestMap.Entity
                         });
+
+                        _hubContext.Clients.All.SendAsync("ReceiveMessage", " Warehouse",
+                            "A new despatch instruction come.");
 
                         continue;
                     }
