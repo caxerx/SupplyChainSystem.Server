@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using SupplyChainSystem.Server.Hub;
 using SupplyChainSystem.Server.Models;
 
@@ -21,6 +22,7 @@ namespace SupplyChainSystem.Server.Controllers
         public MapRequestController(ProcedurementContext dbContext, IHubContext<NotificationHub> hubContext)
         {
             _dbContext = dbContext;
+            _hubContext = hubContext;
         }
 
 
@@ -36,6 +38,8 @@ namespace SupplyChainSystem.Server.Controllers
 
 
             var mapStatus = new List<dynamic>();
+
+            int desp = 0;
 
             foreach (var request in requestQueue)
             {
@@ -266,8 +270,7 @@ namespace SupplyChainSystem.Server.Controllers
                             RequestMap = _dbRequestMap.Entity
                         });
 
-                        _hubContext.Clients.All.SendAsync("ReceiveMessage", " Warehouse",
-                            "A new despatch instruction come.");
+                        desp++;
 
                         continue;
                     }
@@ -323,17 +326,34 @@ namespace SupplyChainSystem.Server.Controllers
                 }
             }
 
+            var lastStatus = new
+            {
+                LastSuccess = DateTime.Now,
+                Maps = mapStatus
+            };
+
 
             _dbContext.DataCache.Add(new DataCache
             {
                 CacheTime = DateTime.Now,
                 CacheType = "RequestMap",
-                Content = Json(mapStatus).ToString()
+                Content = JsonConvert.SerializeObject(lastStatus, new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                    NullValueHandling = NullValueHandling.Ignore,
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                })
             });
 
             _dbContext.SaveChanges();
 
-            return SupplyResponse.Ok(mapStatus);
+            if (desp > 0)
+            {
+                _hubContext.Clients.All.SendAsync("ReceiveMessage", " Warehouse",
+                    $"{desp} new despatch instruction(s) come.");
+            }
+
+            return SupplyResponse.Ok(lastStatus);
         }
 
 
@@ -360,7 +380,7 @@ namespace SupplyChainSystem.Server.Controllers
                                           p.RequestStatus == RequestStatus.Failed));
             if (request == null)
             {
-                return SupplyResponse.NotFound("Unprocessed Request", map.AgreementId + "");
+                return SupplyResponse.NotFound("Unprocessed Request", map.RequestId + "");
             }
 
 
@@ -446,7 +466,7 @@ namespace SupplyChainSystem.Server.Controllers
         public SupplyResponse Get()
         {
             var res = _dbContext.DataCache.OrderByDescending(p => p.CacheTime)
-                .SingleOrDefault(p => p.CacheType == "RequestMap");
+                .FirstOrDefault(p => p.CacheType == "RequestMap");
             return res == null
                 ? SupplyResponse.Fail("First Request Mapping",
                     "System never run a request mapping before. To start request map manually, click start button.")
