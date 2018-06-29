@@ -155,7 +155,7 @@ namespace SupplyChainSystem.Server.Controllers
                     {
                         CreateTime = DateTime.Now,
                         RequestId = request.RequestId,
-                        AgreementId = selectedAgreement.AgreementId
+                        AgreementId = selectedAgreement.AgreementId,
                     });
 
                     _dbContext.SaveChanges();
@@ -203,7 +203,8 @@ namespace SupplyChainSystem.Server.Controllers
                             Success = true,
                             Type = "BPA"
                         },
-                        RequestMap = _dbRequestMap.Entity
+                        RequestMap = _dbRequestMap.Entity,
+                        Supplier = selectedAgreement.Supplier
                     });
 
                     continue;
