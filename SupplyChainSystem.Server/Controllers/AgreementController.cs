@@ -544,6 +544,8 @@ namespace SupplyChainSystem.Server.Controllers
                 {
                     line.AgreementId = _dbAgreement.AgreementId;
                     var entry = _dbContext.ContractPurchaseAgreementLine.Add(line);
+                    _dbContext.SaveChanges();
+
                     entry.State = EntityState.Detached;
                 }
 
@@ -644,6 +646,7 @@ namespace SupplyChainSystem.Server.Controllers
                 {
                     line.AgreementId = _dbAgreement.AgreementId;
                     var entry = _dbContext.PlannedPurchaseAgreementLine.Add(line);
+                    _dbContext.SaveChanges();
                     entry.State = EntityState.Detached;
                 }
 

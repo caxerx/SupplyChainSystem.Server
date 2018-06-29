@@ -394,7 +394,7 @@ namespace SupplyChainSystem.Server.Controllers
                                               its.AddRange(all);
                                               its.AddRange(t);
                                               return its;
-                                          }) ?? new List<VirtualItem>();
+                                          });
 
             if ((request.RequestItem ?? new List<RequestItem>()).All(p => contractVirtualItem.Contains(p.VirtualItem)))
             {
