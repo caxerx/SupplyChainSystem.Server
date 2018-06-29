@@ -54,7 +54,7 @@ namespace SupplyChainSystem.Server.Controllers
                 var blanketAgreements = _dbContext.Agreement.Where(p =>
                         p.AgreementType == AgreementType.Blanket && DateTime.Now < p.ExpiryDate &&
                         DateTime.Now > p.StartDate)
-                    .Select(p => p)
+                    .Select(p => p).Include(p => p.Supplier)
                     .Include(p => p.BlanketPurchaseAgreementDetails)
                     .Include(p => p.BlanketPurchaseAgreementLines).ThenInclude(p => p.Item);
 
@@ -255,7 +255,7 @@ namespace SupplyChainSystem.Server.Controllers
 
 
                         _dbContext.Request.SingleOrDefault(p => p.RequestId == request.RequestId).RequestStatus =
-                            RequestStatus.Delivering;
+                            RequestStatus.WaitingForDespatch;
                         _dbContext.SaveChanges();
 
 
@@ -290,9 +290,10 @@ namespace SupplyChainSystem.Server.Controllers
                     var contractAgreements = _dbContext.Agreement.Where(p =>
                             p.AgreementType == AgreementType.Contract && DateTime.Now < p.ExpiryDate &&
                             DateTime.Now > p.StartDate)
-                        .Select(p => p)
                         .Include(p => p.ContractPurchaseAgreementDetails)
-                        .Include(p => p.ContractPurchaseAgreementLines).ThenInclude(p => p.Item);
+                        .Include(p => p.ContractPurchaseAgreementLines).ThenInclude(p => p.Item)
+                        .Include(p => p.Supplier)
+                        .Select(p => p);
 
                     var matchedContract = new List<Agreement>();
 

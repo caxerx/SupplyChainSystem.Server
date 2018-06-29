@@ -47,7 +47,7 @@ namespace SupplyChainSystem.Server.Controllers
         {
             var request = _dbContext.Request.Include(p => p.User).Include(p => p.RequestItem)
                 .ThenInclude(p => p.VirtualItem).Include(p => p.RequestMap).ThenInclude(p => p.Agreement).Include(p=>p.DeliveryNote).Include(p => p.BlanketRelease).Include(p => p.StandardPurchaseOrder).Include(p => p.RequestMap).ThenInclude(p=>p.DespatchInstruction)
-                .SingleOrDefault(p => p.RequestId == id);
+                .FirstOrDefault(p => p.RequestId == id);
             if (request == null) return SupplyResponse.NotFound("request", id + "");
 
             foreach (var requestItem in request.RequestItem)

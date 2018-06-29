@@ -51,10 +51,15 @@ namespace SupplyChainSystem.Server.Controllers
                 .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem).Include(p => p.Request)
                 .ThenInclude(p => p.Restaurant)
                 .SingleOrDefault(p => p.DespatchInstructionId == id);
+
             if (order == null)
             {
                 return SupplyResponse.NotFound("Purchase Order", id + "");
             }
+
+            order.Request.RequestStatus = RequestStatus.Delivering;
+
+            _dbContext.SaveChanges();
 
             order.DespatchInstructionStatus = 1;
 

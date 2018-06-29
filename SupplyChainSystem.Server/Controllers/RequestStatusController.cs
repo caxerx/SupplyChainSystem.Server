@@ -62,9 +62,19 @@ namespace SupplyChainSystem.Server.Controllers
                     case MapType.Warehouse:
                         request.RequestStatus = requestStatusRequest.Status;
                         var dn = _dbContext.DeliveryNote.FirstOrDefault(p => p.RequestId == id);
-                        dn.DeliveryStatus = 1;
+                        if (dn != null)
+                        {
+                            dn.DeliveryStatus = 1;
+                        }
+                        else
+                        {
+                            var di = _dbContext.DespatchInstruction.FirstOrDefault(p => p.RequestId == id);
+                            di.DespatchInstructionStatus = 1;
+                        }
+
                         break;
                 }
+
                 _dbContext.SaveChanges();
                 return SupplyResponse.Ok();
             }

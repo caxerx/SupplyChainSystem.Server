@@ -13,6 +13,7 @@ namespace SupplyChainSystem.Server.Models
         Ordered,
         Delivering,
         Delivered,
+        WaitingForDespatch,
         Failed = -2,
         Cancelled = -1
     }
