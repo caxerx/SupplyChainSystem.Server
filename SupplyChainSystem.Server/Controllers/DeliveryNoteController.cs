@@ -48,10 +48,7 @@ namespace SupplyChainSystem.Server.Controllers
             var order = _dbContext.DeliveryNote.Include(p => p.Request)
                 .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem)
                 .SingleOrDefault(p => p.RequestId == id);
-            if (order == null)
-            {
-                return SupplyResponse.NotFound("Purchase Order", id + "");
-            }
+            if (order == null) return SupplyResponse.NotFound("Purchase Order", id + "");
 
             order.DeliveryStatus = deliveryNote.DeliveryStatus;
 
