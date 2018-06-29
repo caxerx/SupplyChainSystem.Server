@@ -38,7 +38,7 @@ namespace SupplyChainSystem.Server.Controllers
             var order = _dbContext.DespatchInstruction.Include(p => p.Request)
                 .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem).Include(p => p.Request)
                 .ThenInclude(p => p.Restaurant)
-                .SingleOrDefault(p => p.RequestId == id);
+                .SingleOrDefault(p => p.DespatchInstructionId == id);
             return order == null ? SupplyResponse.NotFound("Despatch Instruction", id + "") : SupplyResponse.Ok(order);
         }
 
@@ -50,7 +50,7 @@ namespace SupplyChainSystem.Server.Controllers
             var order = _dbContext.DespatchInstruction.Include(p => p.Request)
                 .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem).Include(p => p.Request)
                 .ThenInclude(p => p.Restaurant)
-                .SingleOrDefault(p => p.RequestId == id);
+                .SingleOrDefault(p => p.DespatchInstructionId == id);
             if (order == null)
             {
                 return SupplyResponse.NotFound("Purchase Order", id + "");
