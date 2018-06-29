@@ -24,8 +24,8 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Get()
         {
-            var orders = _dbContext.BlanketRelease.Include(p => p.Agreement).Include(p => p.Request)
-                .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem).Include(p => p.BlanketReleaseLine)
+            var orders = _dbContext.BlanketRelease.Include(p => p.Agreement).ThenInclude(p=>p.Supplier).Include(p => p.Request)
+                .ThenInclude(p => p.RequestItem).Include(p => p.BlanketReleaseLine).ThenInclude(p=>p.Item)
                 .Select(p => p);
 
             return SupplyResponse.Ok(orders);
@@ -35,8 +35,8 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Get(int id)
         {
-            var order = _dbContext.BlanketRelease.Include(p => p.Agreement).Include(p => p.Request)
-                .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem).Include(p => p.BlanketReleaseLine)
+            var order = _dbContext.BlanketRelease.Include(p => p.Agreement).ThenInclude(p => p.Supplier).Include(p => p.Request)
+                .ThenInclude(p => p.RequestItem).Include(p => p.BlanketReleaseLine).ThenInclude(p => p.Item)
                 .SingleOrDefault(p => p.RequestId == id);
             return order == null ? SupplyResponse.NotFound("Purchase Order", id + "") : SupplyResponse.Ok(order);
         }
@@ -46,8 +46,8 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Put(int id, BlanketRelease orderStatus)
         {
-            var order = _dbContext.BlanketRelease.Include(p => p.Agreement).Include(p => p.Request)
-                .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem).Include(p => p.BlanketReleaseLine)
+            var order = _dbContext.BlanketRelease.Include(p => p.Agreement).ThenInclude(p => p.Supplier).Include(p => p.Request)
+                .ThenInclude(p => p.RequestItem).Include(p => p.BlanketReleaseLine).ThenInclude(p => p.Item)
                 .SingleOrDefault(p => p.RequestId == id);
             if (order == null)
             {
