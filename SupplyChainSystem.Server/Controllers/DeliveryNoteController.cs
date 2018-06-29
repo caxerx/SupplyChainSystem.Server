@@ -19,8 +19,8 @@ namespace SupplyChainSystem.Server.Controllers
         {
             _dbContext = dbContext;
         }
-                                                                                                                                                                            
 
+        [HttpGet]
         [Authorize]
         public SupplyResponse Get()
         {
