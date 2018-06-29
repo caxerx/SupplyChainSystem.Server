@@ -58,7 +58,8 @@ namespace SupplyChainSystem.Server
 
             services.AddMvc().AddJsonOptions(options =>
             {
-                options.SerializerSettings.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
+                //options.SerializerSettings.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
             });
 

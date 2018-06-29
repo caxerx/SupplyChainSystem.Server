@@ -315,12 +315,15 @@ namespace SupplyChainSystem.Server.Controllers
                 }
             }
 
+
             _dbContext.DataCache.Add(new DataCache
             {
                 CacheTime = DateTime.Now,
                 CacheType = "RequestMap",
-                Content = JsonConvert.SerializeObject(mapStatus)
+                Content = Json(mapStatus).ToString()
             });
+
+            _dbContext.SaveChanges();
 
             return SupplyResponse.Ok(mapStatus);
         }
@@ -438,7 +441,7 @@ namespace SupplyChainSystem.Server.Controllers
             return res == null
                 ? SupplyResponse.Fail("First Request Mapping",
                     "System never run a request mapping before. To start request map manually, click start button.")
-                : SupplyResponse.Ok(res);
+                : SupplyResponse.Ok(JsonConvert.DeserializeObject(res.Content));
         }
     }
 }
