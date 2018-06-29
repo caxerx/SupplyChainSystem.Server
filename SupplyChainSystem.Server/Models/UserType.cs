@@ -11,6 +11,7 @@ namespace SupplyChainSystem.Server.Models
         RestaurantManager,
         CategoryManager,
         PurchaseManager,
+        WarehouseClerk,
         ROOT = 999 //FOR DEBUG
     }
 }
