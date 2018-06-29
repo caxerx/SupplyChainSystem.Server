@@ -19,7 +19,7 @@ namespace SupplyChainSystem.Server.Controllers
         {
             _dbContext = dbContext;
         }
-
+                                                                                                                                                                            
 
         [Authorize]
         public SupplyResponse Get()
