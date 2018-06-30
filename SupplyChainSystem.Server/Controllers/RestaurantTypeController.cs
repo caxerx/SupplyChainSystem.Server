@@ -42,7 +42,7 @@ namespace SupplyChainSystem.Server.Controllers
         }
 
 
-        [HttpPut]
+        [HttpPut("{id}")]
         [Authorize]
         public SupplyResponse EditestaurantType(int id,[FromBody] RestaurantType nameRequest)
         {
