@@ -293,6 +293,7 @@ namespace SupplyChainSystem.Server.Controllers
                             DateTime.Now > p.StartDate)
                         .Include(p => p.ContractPurchaseAgreementDetails)
                         .Include(p => p.ContractPurchaseAgreementLines).ThenInclude(p => p.Item)
+                        .ThenInclude(p => p.VirtualIdMap).ThenInclude(p => p.VirtualItem)
                         .Include(p => p.Supplier)
                         .Select(p => p);
 
@@ -387,14 +388,14 @@ namespace SupplyChainSystem.Server.Controllers
 
 
             var contractVirtualItem = _dbAgreement.ContractPurchaseAgreementLines
-                                          .Select(p => p.Item.VirtualIdMap).Select(p => p?.Select(q => q.VirtualItem))
-                                          .Aggregate((all, t) =>
-                                          {
-                                              var its = new List<VirtualItem>();
-                                              its.AddRange(all);
-                                              its.AddRange(t);
-                                              return its;
-                                          });
+                .Select(p => p.Item.VirtualIdMap).Select(p => p?.Select(q => q.VirtualItem))
+                .Aggregate((all, t) =>
+                {
+                    var its = new List<VirtualItem>();
+                    its.AddRange(all);
+                    its.AddRange(t);
+                    return its;
+                });
 
             if ((request.RequestItem ?? new List<RequestItem>()).All(p => contractVirtualItem.Contains(p.VirtualItem)))
             {
