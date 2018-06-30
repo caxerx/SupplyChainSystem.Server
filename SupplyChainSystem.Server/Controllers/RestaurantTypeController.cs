@@ -28,17 +28,37 @@ namespace SupplyChainSystem.Server.Controllers
 
         [HttpPost]
         [Authorize]
-        public SupplyResponse AddRestaurantType([FromBody] NameRequest nameRequest)
+        public SupplyResponse AddRestaurantType([FromBody] RestaurantType nameRequest)
         {
-            if (nameRequest.Name == null) return SupplyResponse.RequiredFieldEmpty();
+            if (nameRequest.RestaurantTypeName == null) return SupplyResponse.RequiredFieldEmpty();
             var restaurantType = new RestaurantType
             {
-                RestaurantTypeName = nameRequest.Name
+                RestaurantTypeName = nameRequest.RestaurantTypeName
             };
 
             var entity = _dbContext.RestaurantType.Add(restaurantType);
             _dbContext.SaveChanges();
             return SupplyResponse.Ok(entity.Entity);
+        }
+
+
+        [HttpPut]
+        [Authorize]
+        public SupplyResponse EditestaurantType(int id,[FromBody] RestaurantType nameRequest)
+        {
+            if (id == 0) return SupplyResponse.RequiredFieldEmpty();
+            if (nameRequest.RestaurantTypeName == null) return SupplyResponse.RequiredFieldEmpty();
+
+            var restaurantType =
+                _dbContext.RestaurantType.SingleOrDefault(p => p.RestaurantTypeId == id);
+
+            if (restaurantType == null)
+                return SupplyResponse.NotFound("restaurant type", "" + id);
+
+            restaurantType.RestaurantTypeName = nameRequest.RestaurantTypeName;
+
+            _dbContext.SaveChanges();
+            return SupplyResponse.Ok(Get());
         }
 
         [HttpDelete("{id}")]
