@@ -25,7 +25,8 @@ namespace SupplyChainSystem.Server.Controllers
         public SupplyResponse Get()
         {
             var orders = _dbContext.StandardPurchaseOrder.Include(p => p.Agreement).ThenInclude(p => p.Supplier).Include(p => p.Request)
-                .ThenInclude(p => p.RequestItem).Include(p => p.StandardPurchaseOrderLine).ThenInclude(p => p.Item).Select(p => p);
+                .ThenInclude(p => p.RequestItem).Include(p => p.StandardPurchaseOrderLine).ThenInclude(p => p.Item).Include(p => p.Request)
+                .ThenInclude(p => p.Restaurant).Select(p => p);
 
             return SupplyResponse.Ok(orders);
         }
@@ -35,7 +36,8 @@ namespace SupplyChainSystem.Server.Controllers
         public SupplyResponse Get(int id)
         {
             var order = _dbContext.StandardPurchaseOrder.Include(p => p.Agreement).ThenInclude(p => p.Supplier).Include(p => p.Request)
-                .ThenInclude(p => p.RequestItem).Include(p => p.StandardPurchaseOrderLine).ThenInclude(p => p.Item)
+                .ThenInclude(p => p.RequestItem).Include(p => p.StandardPurchaseOrderLine).ThenInclude(p => p.Item).Include(p => p.Request)
+                .ThenInclude(p => p.Restaurant)
                 .SingleOrDefault(p => p.RequestId == id);
             return order == null ? SupplyResponse.NotFound("Purchase Order", id + "") : SupplyResponse.Ok(order);
         }
@@ -46,7 +48,8 @@ namespace SupplyChainSystem.Server.Controllers
         public SupplyResponse Put(int id, StandardPurchaseOrder orderStatus)
         {
             var order = _dbContext.StandardPurchaseOrder.Include(p => p.Agreement).ThenInclude(p => p.Supplier).Include(p => p.Request)
-                .ThenInclude(p => p.RequestItem).Include(p => p.StandardPurchaseOrderLine).ThenInclude(p => p.Item)
+                .ThenInclude(p => p.RequestItem).Include(p => p.StandardPurchaseOrderLine).ThenInclude(p => p.Item).Include(p => p.Request)
+                .ThenInclude(p => p.Restaurant)
                 .SingleOrDefault(p => p.RequestId == id);
             if (order == null)
             {

@@ -81,6 +81,11 @@ namespace SupplyChainSystem.Server.Controllers
                         items.Add(item.ToObject<QuantityItems>());
                     }
 
+                    if (!items.Any())
+                    {
+                        return SupplyResponse.BadRequest("Agreement Line is Empty");
+                    }
+
                     details = agreement.Details.ToObject<BlanketPurchaseAgreementDetails>();
                 }
                 catch (Exception e)
@@ -152,7 +157,10 @@ namespace SupplyChainSystem.Server.Controllers
 
                 return Get(agreementId);
             }
-            else if (agreement.AgreementType == AgreementType.Contract) //CPA
+
+
+            //CPA
+            if (agreement.AgreementType == AgreementType.Contract)
             {
                 ICollection<QuantityItems> items = new List<QuantityItems>();
                 ContractPurchaseAgreementDetails details;
@@ -161,6 +169,11 @@ namespace SupplyChainSystem.Server.Controllers
                     foreach (var item in agreement.Items)
                     {
                         items.Add(item.ToObject<QuantityItems>());
+                    }
+
+                    if (!items.Any())
+                    {
+                        return SupplyResponse.BadRequest("Agreement Line is Empty");
                     }
 
                     details = agreement.Details.ToObject<ContractPurchaseAgreementDetails>();
@@ -217,7 +230,11 @@ namespace SupplyChainSystem.Server.Controllers
 
                 return Get(agreementId);
             }
-            else if (agreement.AgreementType == AgreementType.Planned)
+
+
+
+            //PPA
+            if (agreement.AgreementType == AgreementType.Planned)
             {
                 ICollection<QuantityItems> items = new List<QuantityItems>();
                 PlannedPurchaseAgreementDetails details;
@@ -226,6 +243,11 @@ namespace SupplyChainSystem.Server.Controllers
                     foreach (var item in agreement.Items)
                     {
                         items.Add(item.ToObject<QuantityItems>());
+                    }
+
+                    if (!items.Any())
+                    {
+                        return SupplyResponse.BadRequest("Agreement Line is Empty");
                     }
 
                     details = agreement.Details.ToObject<PlannedPurchaseAgreementDetails>();
@@ -345,6 +367,11 @@ namespace SupplyChainSystem.Server.Controllers
                         items.Add(item.ToObject<QuantityItems>());
                     }
 
+                    if (!items.Any())
+                    {
+                        return SupplyResponse.BadRequest("Agreement Line is Empty");
+                    }
+
                     details = agreement.Details.ToObject<BlanketPurchaseAgreementDetails>();
                 }
 
@@ -442,6 +469,11 @@ namespace SupplyChainSystem.Server.Controllers
                         items.Add(item.ToObject<QuantityItems>());
                     }
 
+                    if (!items.Any())
+                    {
+                        return SupplyResponse.BadRequest("Agreement Line is Empty");
+                    }
+
                     details = agreement.Details.ToObject<ContractPurchaseAgreementDetails>();
                 }
                 catch (Exception e)
@@ -512,6 +544,8 @@ namespace SupplyChainSystem.Server.Controllers
                 {
                     line.AgreementId = _dbAgreement.AgreementId;
                     var entry = _dbContext.ContractPurchaseAgreementLine.Add(line);
+                    _dbContext.SaveChanges();
+
                     entry.State = EntityState.Detached;
                 }
 
@@ -528,6 +562,11 @@ namespace SupplyChainSystem.Server.Controllers
                     foreach (var item in agreement.Items)
                     {
                         items.Add(item.ToObject<QuantityItems>());
+                    }
+
+                    if (!items.Any())
+                    {
+                        return SupplyResponse.BadRequest("Agreement Line is Empty");
                     }
 
                     details = agreement.Details.ToObject<PlannedPurchaseAgreementDetails>();
@@ -607,6 +646,7 @@ namespace SupplyChainSystem.Server.Controllers
                 {
                     line.AgreementId = _dbAgreement.AgreementId;
                     var entry = _dbContext.PlannedPurchaseAgreementLine.Add(line);
+                    _dbContext.SaveChanges();
                     entry.State = EntityState.Detached;
                 }
 

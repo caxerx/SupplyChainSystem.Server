@@ -25,7 +25,8 @@ namespace SupplyChainSystem.Server.Controllers
         public SupplyResponse Get()
         {
             var orders = _dbContext.DespatchInstruction.Include(p => p.Request)
-                .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem).Select(p => p);
+                .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem).Include(p => p.Request)
+                .ThenInclude(p => p.Restaurant).Select(p => p);
 
             return SupplyResponse.Ok(orders);
         }
@@ -35,8 +36,9 @@ namespace SupplyChainSystem.Server.Controllers
         public SupplyResponse Get(int id)
         {
             var order = _dbContext.DespatchInstruction.Include(p => p.Request)
-                .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem)
-                .SingleOrDefault(p => p.RequestId == id);
+                .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem).Include(p => p.Request)
+                .ThenInclude(p => p.Restaurant)
+                .SingleOrDefault(p => p.DespatchInstructionId == id);
             return order == null ? SupplyResponse.NotFound("Despatch Instruction", id + "") : SupplyResponse.Ok(order);
         }
 
@@ -46,12 +48,18 @@ namespace SupplyChainSystem.Server.Controllers
         public SupplyResponse Put(int id)
         {
             var order = _dbContext.DespatchInstruction.Include(p => p.Request)
-                .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem)
-                .SingleOrDefault(p => p.RequestId == id);
+                .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem).Include(p => p.Request)
+                .ThenInclude(p => p.Restaurant)
+                .SingleOrDefault(p => p.DespatchInstructionId == id);
+
             if (order == null)
             {
                 return SupplyResponse.NotFound("Purchase Order", id + "");
             }
+
+            order.Request.RequestStatus = RequestStatus.Delivering;
+
+            _dbContext.SaveChanges();
 
             order.DespatchInstructionStatus = 1;
 

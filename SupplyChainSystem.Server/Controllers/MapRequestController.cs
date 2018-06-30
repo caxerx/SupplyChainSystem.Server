@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using SupplyChainSystem.Server.Hub;
 using SupplyChainSystem.Server.Models;
 
@@ -21,6 +22,7 @@ namespace SupplyChainSystem.Server.Controllers
         public MapRequestController(ProcedurementContext dbContext, IHubContext<NotificationHub> hubContext)
         {
             _dbContext = dbContext;
+            _hubContext = hubContext;
         }
 
 
@@ -37,6 +39,8 @@ namespace SupplyChainSystem.Server.Controllers
 
             var mapStatus = new List<dynamic>();
 
+            int desp = 0;
+
             foreach (var request in requestQueue)
             {
                 Console.WriteLine($"Processing request {request.RequestId}");
@@ -50,7 +54,7 @@ namespace SupplyChainSystem.Server.Controllers
                 var blanketAgreements = _dbContext.Agreement.Where(p =>
                         p.AgreementType == AgreementType.Blanket && DateTime.Now < p.ExpiryDate &&
                         DateTime.Now > p.StartDate)
-                    .Select(p => p)
+                    .Select(p => p).Include(p => p.Supplier)
                     .Include(p => p.BlanketPurchaseAgreementDetails)
                     .Include(p => p.BlanketPurchaseAgreementLines).ThenInclude(p => p.Item);
 
@@ -151,7 +155,7 @@ namespace SupplyChainSystem.Server.Controllers
                     {
                         CreateTime = DateTime.Now,
                         RequestId = request.RequestId,
-                        AgreementId = selectedAgreement.AgreementId
+                        AgreementId = selectedAgreement.AgreementId,
                     });
 
                     _dbContext.SaveChanges();
@@ -199,7 +203,8 @@ namespace SupplyChainSystem.Server.Controllers
                             Success = true,
                             Type = "BPA"
                         },
-                        RequestMap = _dbRequestMap.Entity
+                        RequestMap = _dbRequestMap.Entity,
+                        Supplier = selectedAgreement.Supplier
                     });
 
                     continue;
@@ -251,7 +256,7 @@ namespace SupplyChainSystem.Server.Controllers
 
 
                         _dbContext.Request.SingleOrDefault(p => p.RequestId == request.RequestId).RequestStatus =
-                            RequestStatus.Delivering;
+                            RequestStatus.WaitingForDespatch;
                         _dbContext.SaveChanges();
 
 
@@ -266,8 +271,7 @@ namespace SupplyChainSystem.Server.Controllers
                             RequestMap = _dbRequestMap.Entity
                         });
 
-                        _hubContext.Clients.All.SendAsync("ReceiveMessage", " Warehouse",
-                            "A new despatch instruction come.");
+                        desp++;
 
                         continue;
                     }
@@ -287,9 +291,10 @@ namespace SupplyChainSystem.Server.Controllers
                     var contractAgreements = _dbContext.Agreement.Where(p =>
                             p.AgreementType == AgreementType.Contract && DateTime.Now < p.ExpiryDate &&
                             DateTime.Now > p.StartDate)
-                        .Select(p => p)
                         .Include(p => p.ContractPurchaseAgreementDetails)
-                        .Include(p => p.ContractPurchaseAgreementLines).ThenInclude(p => p.Item);
+                        .Include(p => p.ContractPurchaseAgreementLines).ThenInclude(p => p.Item)
+                        .Include(p => p.Supplier)
+                        .Select(p => p);
 
                     var matchedContract = new List<Agreement>();
 
@@ -323,17 +328,34 @@ namespace SupplyChainSystem.Server.Controllers
                 }
             }
 
+            var lastStatus = new
+            {
+                LastSuccess = DateTime.Now,
+                Maps = mapStatus
+            };
+
 
             _dbContext.DataCache.Add(new DataCache
             {
                 CacheTime = DateTime.Now,
                 CacheType = "RequestMap",
-                Content = Json(mapStatus).ToString()
+                Content = JsonConvert.SerializeObject(lastStatus, new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                    NullValueHandling = NullValueHandling.Ignore,
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                })
             });
 
             _dbContext.SaveChanges();
 
-            return SupplyResponse.Ok(mapStatus);
+            if (desp > 0)
+            {
+                _hubContext.Clients.All.SendAsync("ReceiveMessage", " Warehouse",
+                    $"{desp} new despatch instruction(s) come.");
+            }
+
+            return SupplyResponse.Ok(lastStatus);
         }
 
 
@@ -360,7 +382,7 @@ namespace SupplyChainSystem.Server.Controllers
                                           p.RequestStatus == RequestStatus.Failed));
             if (request == null)
             {
-                return SupplyResponse.NotFound("Unprocessed Request", map.AgreementId + "");
+                return SupplyResponse.NotFound("Unprocessed Request", map.RequestId + "");
             }
 
 
@@ -372,7 +394,7 @@ namespace SupplyChainSystem.Server.Controllers
                                               its.AddRange(all);
                                               its.AddRange(t);
                                               return its;
-                                          }) ?? new List<VirtualItem>();
+                                          });
 
             if ((request.RequestItem ?? new List<RequestItem>()).All(p => contractVirtualItem.Contains(p.VirtualItem)))
             {
@@ -446,7 +468,7 @@ namespace SupplyChainSystem.Server.Controllers
         public SupplyResponse Get()
         {
             var res = _dbContext.DataCache.OrderByDescending(p => p.CacheTime)
-                .SingleOrDefault(p => p.CacheType == "RequestMap");
+                .FirstOrDefault(p => p.CacheType == "RequestMap");
             return res == null
                 ? SupplyResponse.Fail("First Request Mapping",
                     "System never run a request mapping before. To start request map manually, click start button.")

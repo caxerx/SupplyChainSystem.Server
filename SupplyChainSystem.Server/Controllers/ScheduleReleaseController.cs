@@ -25,8 +25,9 @@ namespace SupplyChainSystem.Server.Controllers
         public SupplyResponse Get()
         {
             var orders = _dbContext.ScheduleRelease.Include(p => p.Agreement)
-                .ThenInclude(p => p.ContractPurchaseAgreementDetails).Include(p => p.Agreement)
-                .ThenInclude(p => p.ContractPurchaseAgreementLines).ThenInclude(p => p.Item).Select(p => p);
+                .ThenInclude(p => p.PlannedPurchaseAgreementDetails).Include(p => p.Agreement)
+                .ThenInclude(p => p.Supplier).Include(p => p.Agreement)
+                .ThenInclude(p => p.PlannedPurchaseAgreementLines).ThenInclude(p => p.Item).Select(p => p);
 
             return SupplyResponse.Ok(orders);
         }
@@ -36,11 +37,11 @@ namespace SupplyChainSystem.Server.Controllers
         public SupplyResponse Get(int id)
         {
             var order = _dbContext.ScheduleRelease.Include(p => p.Agreement)
-                .ThenInclude(p => p.ContractPurchaseAgreementDetails).Include(p => p.Agreement)
-                .ThenInclude(p => p.ContractPurchaseAgreementLines).ThenInclude(p => p.Item)
+                .ThenInclude(p => p.PlannedPurchaseAgreementDetails).Include(p => p.Agreement)
+                .ThenInclude(p => p.Supplier).Include(p => p.Agreement)
+                .ThenInclude(p => p.PlannedPurchaseAgreementLines).ThenInclude(p => p.Item)
                 .SingleOrDefault(p => p.OrderId == id);
             return order == null ? SupplyResponse.NotFound("Schedule Release", id + "") : SupplyResponse.Ok(order);
         }
-
     }
 }

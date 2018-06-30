@@ -16,7 +16,7 @@ namespace SupplyChainSystem.Server.Models
         public int RequestId { get; set; }
 
         public int RestaurantId { get; set; }
-        [JsonIgnore] public Restaurant Restaurant { get; set; }
+        public Restaurant Restaurant { get; set; }
 
         [ForeignKey("User")] public int RequestCreator { get; set; }
         public User User { get; set; }
@@ -28,6 +28,8 @@ namespace SupplyChainSystem.Server.Models
 
         public RequestMap RequestMap { get; set; }
 
-        
+        public DeliveryNote DeliveryNote { get; set; }
+        public BlanketRelease BlanketRelease { get; set; }
+        public StandardPurchaseOrder StandardPurchaseOrder { get; set; }
     }
 }

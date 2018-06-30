@@ -19,13 +19,14 @@ namespace SupplyChainSystem.Server.Controllers
         {
             _dbContext = dbContext;
         }
-                                                                                                                                                                            
 
+        [HttpGet]
         [Authorize]
         public SupplyResponse Get()
         {
             var orders = _dbContext.DeliveryNote.Include(p => p.Request)
-                .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem).Select(p => p);
+                .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem).Include(p => p.Request)
+                .ThenInclude(p => p.Restaurant).Select(p => p);
 
             return SupplyResponse.Ok(orders);
         }
@@ -35,7 +36,8 @@ namespace SupplyChainSystem.Server.Controllers
         public SupplyResponse Get(int id)
         {
             var order = _dbContext.DeliveryNote.Include(p => p.Request)
-                .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem)
+                .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem).Include(p => p.Request)
+                .ThenInclude(p => p.Restaurant)
                 .SingleOrDefault(p => p.RequestId == id);
             return order == null ? SupplyResponse.NotFound("Delivery Note", id + "") : SupplyResponse.Ok(order);
         }
@@ -46,7 +48,8 @@ namespace SupplyChainSystem.Server.Controllers
         public SupplyResponse Put(int id,DeliveryNote deliveryNote)
         {
             var order = _dbContext.DeliveryNote.Include(p => p.Request)
-                .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem)
+                .ThenInclude(p => p.RequestItem).ThenInclude(p => p.VirtualItem).Include(p => p.Request)
+                .ThenInclude(p => p.Restaurant)
                 .SingleOrDefault(p => p.RequestId == id);
             if (order == null) return SupplyResponse.NotFound("Purchase Order", id + "");
 
