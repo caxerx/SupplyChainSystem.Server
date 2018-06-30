@@ -94,11 +94,19 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Delete(string id)
         {
-            var entity = _dbContext.Item.SingleOrDefault(p => p.SupplierItemId.Equals(id));
-            if (entity == null) return SupplyResponse.NotFound("item", id + "");
-            _dbContext.Remove(entity);
-            _dbContext.SaveChanges();
-            return SupplyResponse.Ok();
+            try
+            {
+                var entity = _dbContext.Item.SingleOrDefault(p => p.SupplierItemId.Equals(id));
+                if (entity == null) return SupplyResponse.NotFound("item", id + "");
+                _dbContext.Remove(entity);
+                _dbContext.SaveChanges();
+                return SupplyResponse.Ok();
+            }
+            catch
+            {
+                return SupplyResponse.Fail("Item in use",
+                    "This item referenced by request or order, you cannot remove it.");
+            }
         }
     }
 }

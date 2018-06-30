@@ -51,9 +51,6 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Post([FromBody] UserRequest user)
         {
-            Console.WriteLine(string.IsNullOrWhiteSpace(user.Name));
-            Console.WriteLine(string.IsNullOrWhiteSpace(user.UserName));
-            Console.WriteLine(string.IsNullOrWhiteSpace(user.Password));
             if (string.IsNullOrWhiteSpace(user.Name) || string.IsNullOrWhiteSpace(user.UserName) ||
                 string.IsNullOrWhiteSpace(user.Password)) return SupplyResponse.RequiredFieldEmpty();
             var entity = _dbContext.User.AsNoTracking().SingleOrDefault(p => p.UserName == user.UserName);

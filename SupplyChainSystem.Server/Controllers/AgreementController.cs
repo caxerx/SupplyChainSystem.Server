@@ -663,11 +663,19 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Delete(int id)
         {
-            var agreement = _dbContext.Agreement.SingleOrDefault(p => p.AgreementId == id);
-            if (agreement == null) return SupplyResponse.NotFound("Agreement", id + "");
-            _dbContext.Remove(agreement);
-            _dbContext.SaveChanges();
-            return SupplyResponse.Ok();
+            try
+            {
+                var agreement = _dbContext.Agreement.SingleOrDefault(p => p.AgreementId == id);
+                if (agreement == null) return SupplyResponse.NotFound("Agreement", id + "");
+                _dbContext.Remove(agreement);
+                _dbContext.SaveChanges();
+                return SupplyResponse.Ok();
+            }
+            catch
+            {
+                return SupplyResponse.Fail("Agreement in use",
+                    "This agreement had referenced by orders, you cannot remove it.");
+            }
         }
     }
 }

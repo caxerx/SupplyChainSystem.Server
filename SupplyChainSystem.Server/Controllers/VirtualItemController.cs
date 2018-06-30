@@ -86,11 +86,19 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Delete(string id)
         {
-            var entity = _dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId.Equals(id));
-            if (entity == null) return SupplyResponse.NotFound("virtual item", id + "");
-            _dbContext.Remove(entity);
-            _dbContext.SaveChanges();
-            return SupplyResponse.Ok();
+            try
+            {
+                var entity = _dbContext.VirtualItem.SingleOrDefault(p => p.VirtualItemId.Equals(id));
+                if (entity == null) return SupplyResponse.NotFound("virtual item", id + "");
+                _dbContext.Remove(entity);
+                _dbContext.SaveChanges();
+                return SupplyResponse.Ok();
+            }
+            catch
+            {
+                return SupplyResponse.Fail("Item in use",
+                    "This item referenced by request or order, you cannot remove it.");
+            }
         }
     }
 }

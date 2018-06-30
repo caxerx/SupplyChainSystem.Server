@@ -153,22 +153,11 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Put(int id, [FromBody] ICollection<ItemRequest> itemRequest)
         {
-            var currentUser = HttpContext.User;
-            var dbUser =
-                _dbContext.User.Include(p => p.RestaurantManager).ThenInclude(p => p.Restaurant)
-                    .SingleOrDefault(p => currentUser.FindFirst(ClaimTypes.Name).Value.Equals(p.UserName));
-            if (dbUser == null) return SupplyResponse.Fail("Unauthorize", "Your are not the user in the system.");
-            var restaurantManager = dbUser.RestaurantManager;
-            if (restaurantManager == null)
-                return SupplyResponse.Fail("Unauthorize", "Your are not the restaurant manager.");
-
             var request = _dbContext.Request.Include(p => p.RequestItem).SingleOrDefault(p => p.RequestId == id);
             if (request == null)
                 return SupplyResponse.NotFound("Request", id + "");
 
-            if (dbUser.UserId != request.RequestCreator)
-                return SupplyResponse.BadRequest("You are not the creator of the request");
-
+            
             ICollection<RequestItem> requestItems;
             if ((requestItems = request.RequestItem) != null)
             {
