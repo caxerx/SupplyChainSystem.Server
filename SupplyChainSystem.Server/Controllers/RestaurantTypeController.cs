@@ -30,7 +30,7 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse AddRestaurantType([FromBody] RestaurantType nameRequest)
         {
-            if (nameRequest.RestaurantTypeName == null) return SupplyResponse.RequiredFieldEmpty();
+            if (string.IsNullOrWhiteSpace(nameRequest.RestaurantTypeName)) return SupplyResponse.RequiredFieldEmpty();
             var restaurantType = new RestaurantType
             {
                 RestaurantTypeName = nameRequest.RestaurantTypeName
@@ -44,10 +44,10 @@ namespace SupplyChainSystem.Server.Controllers
 
         [HttpPut("{id}")]
         [Authorize]
-        public SupplyResponse EditestaurantType(int id,[FromBody] RestaurantType nameRequest)
+        public SupplyResponse EditestaurantType(int id, [FromBody] RestaurantType nameRequest)
         {
             if (id == 0) return SupplyResponse.RequiredFieldEmpty();
-            if (nameRequest.RestaurantTypeName == null) return SupplyResponse.RequiredFieldEmpty();
+            if (string.IsNullOrWhiteSpace(nameRequest.RestaurantTypeName)) return SupplyResponse.RequiredFieldEmpty();
 
             var restaurantType =
                 _dbContext.RestaurantType.SingleOrDefault(p => p.RestaurantTypeId == id);
