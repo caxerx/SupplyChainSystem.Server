@@ -35,7 +35,6 @@ namespace SupplyChainSystem.Server.Service
             return Task.CompletedTask;
         }
 
-        private int lastHour = DateTime.Now.Hour;
         private int lastMinute = DateTime.Now.Minute;
 
         private void DoWork(object state)
@@ -48,10 +47,10 @@ namespace SupplyChainSystem.Server.Service
 
                 var _hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<NotificationHub>>();
 
-                if (DateTime.Now.Hour != lastHour && DateTime.Now.Minute != lastMinute)
+                if (DateTime.Now.Minute != lastMinute)
                 {
                     if ((DateTime.Now.Hour == 9 && DateTime.Now.Minute == 0) ||
-                        (DateTime.Now.Hour == 13 && DateTime.Now.Minute == 13) ||
+                        (DateTime.Now.Hour == 13 && DateTime.Now.Minute == 30) ||
                         (DateTime.Now.Hour == 17 && DateTime.Now.Minute == 0))
                     {
                         _hubContext.Clients.All.SendAsync("ReceiveMessage", "Purchase",
@@ -425,22 +424,10 @@ namespace SupplyChainSystem.Server.Service
                         }
                     }
                 }
-
-                lastHour = DateTime.Now.Hour;
                 lastMinute = DateTime.Now.Minute;
 
                 _dbContext.DataCache.RemoveRange(_dbContext.DataCache.Where(p => p.RemovalTime < DateTime.Now));
                 _dbContext.SaveChanges();
-                /*
-                var toRemove = _dbContext.DataCache.Where(p => p.RemovalTime < DateTime.Now).ToList();
-                
-                foreach (var expCache in toRemove)
-                {
-                    _dbContext.DataCache.Remove(
-                        _dbContext.DataCache.SingleOrDefault(p => p.DataCacheId == expCache.DataCacheId));
-                    _dbContext.SaveChanges();
-                }
-                */
 
                 var today = DateTime.Now.Date;
                 var ppa = _dbContext.Agreement

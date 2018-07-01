@@ -92,6 +92,11 @@ namespace SupplyChainSystem.Server.Controllers
             if (restaurantManager == null)
                 return SupplyResponse.Fail("Unauthorize", "Your are not the restaurant manager.");
 
+            if (itemRequest==null || !itemRequest.Any())
+            {
+                return SupplyResponse.BadRequest("Request Item cannot be empty.");
+            }
+
             var itemMap = new Dictionary<int, int>();
             var itemList = new List<RequestItem>();
 
@@ -157,7 +162,12 @@ namespace SupplyChainSystem.Server.Controllers
             if (request == null)
                 return SupplyResponse.NotFound("Request", id + "");
 
-            
+            if (itemRequest == null || !itemRequest.Any())
+            {
+                return SupplyResponse.BadRequest("Request Item cannot be empty.");
+            }
+
+
             ICollection<RequestItem> requestItems;
             if ((requestItems = request.RequestItem) != null)
             {

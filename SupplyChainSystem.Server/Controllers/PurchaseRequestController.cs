@@ -73,6 +73,11 @@ namespace SupplyChainSystem.Server.Controllers
             if (request == null)
                 return SupplyResponse.NotFound("Request", id + "");
 
+            if (itemRequest == null || !itemRequest.Any())
+            {
+                return SupplyResponse.BadRequest("Request Item cannot be empty.");
+            }
+
             ICollection<RequestItem> requestItems;
             if ((requestItems = request.RequestItem) != null)
             {

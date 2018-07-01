@@ -10,5 +10,6 @@ namespace SupplyChainSystem.Server.ResponseWrapper
         public string Title { get; set; }
         public string Message { get; set; }
         public DateTime RemovalTime { get; set; }
+        public int[] Target { get; set; }
     }
 }
