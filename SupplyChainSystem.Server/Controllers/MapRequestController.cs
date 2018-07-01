@@ -338,6 +338,7 @@ namespace SupplyChainSystem.Server.Controllers
 
             _dbContext.DataCache.Add(new DataCache
             {
+                RemovalTime = DateTime.Now.AddDays(1),
                 CacheTime = DateTime.Now,
                 CacheType = "RequestMap",
                 Content = JsonConvert.SerializeObject(lastStatus, new JsonSerializerSettings

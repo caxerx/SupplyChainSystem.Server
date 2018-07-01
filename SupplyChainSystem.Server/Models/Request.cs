@@ -28,8 +28,10 @@ namespace SupplyChainSystem.Server.Models
 
         public RequestMap RequestMap { get; set; }
 
+        public DespatchInstruction DespatchInstruction { get; set; }
         public DeliveryNote DeliveryNote { get; set; }
         public BlanketRelease BlanketRelease { get; set; }
         public StandardPurchaseOrder StandardPurchaseOrder { get; set; }
+
     }
 }

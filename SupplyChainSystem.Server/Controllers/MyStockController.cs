@@ -23,6 +23,7 @@ namespace SupplyChainSystem.Server.Controllers
 
 
         [Authorize]
+        [HttpGet]
         public SupplyResponse Get()
         {
             var currentUser = HttpContext.User;

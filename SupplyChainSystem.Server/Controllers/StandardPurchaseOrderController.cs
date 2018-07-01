@@ -24,8 +24,10 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Get()
         {
-            var orders = _dbContext.StandardPurchaseOrder.Include(p => p.Agreement).ThenInclude(p => p.Supplier).Include(p => p.Request)
-                .ThenInclude(p => p.RequestItem).Include(p => p.StandardPurchaseOrderLine).ThenInclude(p => p.Item).Include(p => p.Request)
+            var orders = _dbContext.StandardPurchaseOrder.Include(p => p.Agreement).ThenInclude(p => p.Supplier)
+                .Include(p => p.Request)
+                .ThenInclude(p => p.RequestItem).Include(p => p.StandardPurchaseOrderLine).ThenInclude(p => p.Item)
+                .Include(p => p.Request)
                 .ThenInclude(p => p.Restaurant).Select(p => p);
 
             return SupplyResponse.Ok(orders);
@@ -35,22 +37,22 @@ namespace SupplyChainSystem.Server.Controllers
         [Authorize]
         public SupplyResponse Get(int id)
         {
-            var order = _dbContext.StandardPurchaseOrder.Include(p => p.Agreement).ThenInclude(p => p.Supplier).Include(p => p.Request)
-                .ThenInclude(p => p.RequestItem).Include(p => p.StandardPurchaseOrderLine).ThenInclude(p => p.Item).Include(p => p.Request)
+            var order = _dbContext.StandardPurchaseOrder.Include(p => p.Agreement).ThenInclude(p => p.Supplier)
+                .Include(p => p.Request)
+                .ThenInclude(p => p.RequestItem).Include(p => p.StandardPurchaseOrderLine).ThenInclude(p => p.Item)
+                .Include(p => p.Request)
                 .ThenInclude(p => p.Restaurant)
-                .SingleOrDefault(p => p.RequestId == id);
+                .SingleOrDefault(p => p.OrderId == id);
             return order == null ? SupplyResponse.NotFound("Purchase Order", id + "") : SupplyResponse.Ok(order);
         }
 
 
         [HttpPut("{id}")]
         [Authorize]
-        public SupplyResponse Put(int id, StandardPurchaseOrder orderStatus)
+        public SupplyResponse Put(int id, [FromBody]StandardPurchaseOrder orderStatus)
         {
-            var order = _dbContext.StandardPurchaseOrder.Include(p => p.Agreement).ThenInclude(p => p.Supplier).Include(p => p.Request)
-                .ThenInclude(p => p.RequestItem).Include(p => p.StandardPurchaseOrderLine).ThenInclude(p => p.Item).Include(p => p.Request)
-                .ThenInclude(p => p.Restaurant)
-                .SingleOrDefault(p => p.RequestId == id);
+            var order = _dbContext.StandardPurchaseOrder.SingleOrDefault(p => p.OrderId == id);
+
             if (order == null)
             {
                 return SupplyResponse.NotFound("Purchase Order", id + "");

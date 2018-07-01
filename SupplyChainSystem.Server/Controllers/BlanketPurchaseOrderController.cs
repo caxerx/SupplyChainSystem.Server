@@ -39,19 +39,17 @@ namespace SupplyChainSystem.Server.Controllers
             var order = _dbContext.BlanketRelease.Include(p => p.Agreement).ThenInclude(p => p.Supplier).Include(p => p.Request)
                 .ThenInclude(p => p.RequestItem).Include(p => p.BlanketReleaseLine).ThenInclude(p => p.Item).Include(p => p.Request)
                 .ThenInclude(p => p.Restaurant)
-                .SingleOrDefault(p => p.RequestId == id);
+                .SingleOrDefault(p => p.OrderId == id);
             return order == null ? SupplyResponse.NotFound("Purchase Order", id + "") : SupplyResponse.Ok(order);
         }
 
 
         [HttpPut("{id}")]
         [Authorize]
-        public SupplyResponse Put(int id, BlanketRelease orderStatus)
+        public SupplyResponse Put(int id, [FromBody]BlanketRelease orderStatus)
         {
-            var order = _dbContext.BlanketRelease.Include(p => p.Agreement).ThenInclude(p => p.Supplier).Include(p => p.Request)
-                .ThenInclude(p => p.RequestItem).Include(p => p.BlanketReleaseLine).ThenInclude(p => p.Item).Include(p => p.Request)
-                .ThenInclude(p => p.Restaurant)
-                .SingleOrDefault(p => p.RequestId == id);
+            var order = _dbContext.BlanketRelease.SingleOrDefault(p => p.OrderId == id);
+
             if (order == null)
             {
                 return SupplyResponse.NotFound("Purchase Order", id + "");
@@ -59,7 +57,6 @@ namespace SupplyChainSystem.Server.Controllers
 
             order.PurchaseOrderStatus = orderStatus.PurchaseOrderStatus;
             _dbContext.SaveChanges();
-
 
             return Get(id);
         }

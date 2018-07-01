@@ -16,7 +16,7 @@ namespace SupplyChainSystem.Server.ResponseWrapper
         //For PPA
         public int Quantity { get; set; }
 
-        public int Price { get; set; }
+        public double Price { get; set; }
         public string Unit { get; set; }
     }
 }

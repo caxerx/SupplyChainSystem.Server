@@ -18,6 +18,8 @@ namespace SupplyChainSystem.Server.Models
 
         public String CacheType { get; set; }
 
+        public DateTime RemovalTime { get; set; }
+
         [Column(TypeName = "longtext")] public string Content { get; set; }
     }
 }
