@@ -83,7 +83,7 @@ namespace SupplyChainSystem.Server.Controllers
                 RemovalTime = data.RemovalTime
             });
             _dbContext.SaveChanges();
-            _hubContext.Clients.All.SendAsync("ReceiveMessage", "All", "A new announcement broadcasted");
+            _hubContext.Clients.All.SendAsync("ReceiveAnnouncement", data.Target, "A new announcement broadcasted");
             return Get();
         }
     }
