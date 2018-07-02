@@ -353,7 +353,7 @@ namespace SupplyChainSystem.Server.Controllers
 
             if (desp > 0)
             {
-                _hubContext.Clients.All.SendAsync("ReceiveMessage", " Warehouse",
+                _hubContext.Clients.All.SendAsync("ReceiveMessage", "Warehouse",
                     $"{desp} new despatch instruction(s) come.");
             }
 
